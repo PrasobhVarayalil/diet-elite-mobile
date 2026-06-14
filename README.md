@@ -52,8 +52,9 @@ After seeding demo data on the API (`php artisan db:seed-demo --force`):
 
 - Sign in / sign out (Bearer token)
 - Home — plan access summary from `/api/v1/auth/me`
-- Plans list — `/api/v1/plans`
-- Plan detail — `/api/v1/plans/{id}`
+- Plans list + detail — `/api/v1/plans`
+- Checkout — `/api/v1/plans/{id}/checkout` (demo mode when Razorpay is not configured)
+- Payments — `/api/v1/payments`
 
 ## Related repo
 
@@ -77,7 +78,7 @@ constants/theme.ts   Diet Elite brand colors
 
 ## Next steps
 
-- [ ] Plan checkout + Razorpay mobile SDK
+- [ ] Razorpay native checkout (EAS build + `react-native-razorpay`)
 - [ ] Bookings list / create
 - [ ] Notifications
 - [ ] Customer ↔ dietitian messages

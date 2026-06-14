@@ -13,6 +13,7 @@ export const apiRoutes = {
     },
     payments: {
         index: '/api/v1/payments',
+        confirm: (paymentId: string) => `/api/v1/payments/${paymentId}/confirm`,
     },
     bookings: {
         calendar: '/api/v1/bookings/calendar',

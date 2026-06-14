@@ -3,11 +3,12 @@ import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import type { PlanShowResponse } from '@/src/types/plans';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function PlanDetailScreen() {
+    const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -71,8 +72,13 @@ export default function PlanDetailScreen() {
                     ) : null}
                     <Button
                         disabled={data?.isCurrentPlan === true}
-                        label={data?.isCurrentPlan ? 'Already enrolled' : 'Checkout (coming soon)'}
-                        onPress={() => undefined}
+                        label={data?.isCurrentPlan ? 'Already enrolled' : 'Continue to checkout'}
+                        onPress={() =>
+                            router.push({
+                                pathname: '/(app)/plans/[id]/checkout',
+                                params: { id: plan.id, intent: 'buy' },
+                            })
+                        }
                     />
                 </ScrollView>
             ) : null}
