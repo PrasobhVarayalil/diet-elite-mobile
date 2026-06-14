@@ -31,8 +31,16 @@ export default function AppLayout() {
         >
             <Tabs.Screen name="index" options={{ title: 'Home', tabBarLabel: 'Home' }} />
             <Tabs.Screen name="plans/index" options={{ title: 'Plans', tabBarLabel: 'Plans' }} />
+            <Tabs.Screen name="bookings/index" options={{ title: 'Bookings', tabBarLabel: 'Bookings' }} />
             <Tabs.Screen name="payments" options={{ title: 'Payments', tabBarLabel: 'Payments' }} />
             <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: 'Profile' }} />
+            <Tabs.Screen
+                name="bookings/create"
+                options={{
+                    href: null,
+                    title: 'Book consultation',
+                }}
+            />
             <Tabs.Screen
                 name="plans/[id]"
                 options={{

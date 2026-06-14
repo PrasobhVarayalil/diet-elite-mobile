@@ -55,6 +55,7 @@ After seeding demo data on the API (`php artisan db:seed-demo --force`):
 - Plans list + detail — `/api/v1/plans`
 - Checkout — `/api/v1/plans/{id}/checkout` (demo mode when Razorpay is not configured)
 - Payments — `/api/v1/payments`
+- Bookings list, create, cancel — `/api/v1/bookings`
 
 ## Related repo
 
@@ -79,7 +80,6 @@ constants/theme.ts   Diet Elite brand colors
 ## Next steps
 
 - [ ] Razorpay native checkout (EAS build + `react-native-razorpay`)
-- [ ] Bookings list / create
 - [ ] Notifications
 - [ ] Customer ↔ dietitian messages
 - [ ] EAS Build for App Store / Play Store

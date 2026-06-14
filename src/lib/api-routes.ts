@@ -16,6 +16,12 @@ export const apiRoutes = {
         confirm: (paymentId: string) => `/api/v1/payments/${paymentId}/confirm`,
     },
     bookings: {
+        index: '/api/v1/bookings',
+        store: '/api/v1/bookings',
         calendar: '/api/v1/bookings/calendar',
+        cancel: (bookingId: string) => `/api/v1/bookings/${bookingId}/cancel`,
+    },
+    dietitians: {
+        search: '/api/v1/dietitians/search',
     },
 } as const;
