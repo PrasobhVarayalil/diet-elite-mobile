@@ -1,4 +1,6 @@
+import { AppScreen } from '@/components/ui/AppScreen';
 import { Button } from '@/components/ui/Button';
+import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
@@ -15,9 +17,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    FlatList,
+    Keyboard,
     Pressable,
-    ScrollView,
     StyleSheet,
     Text,
     View,
@@ -53,8 +54,6 @@ export default function BookingCreateScreen() {
     const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    const hasActivePlan = user?.has_active_plan === true;
 
     const searchDietitians = useCallback(async (term: string) => {
         if (term.trim().length < 2) {
@@ -97,11 +96,22 @@ export default function BookingCreateScreen() {
         setCalendarLoading(false);
     }, [selectedDietitianName]);
 
+    function clearDietitian() {
+        setSelectedDietitianId(null);
+        setSelectedDietitianName(null);
+        setSlots([]);
+        setSelectedSlot(null);
+        setQuery('');
+        setDietitians([]);
+        setError(null);
+    }
+
     function onSelectDietitian(id: string, name: string) {
+        Keyboard.dismiss();
         setSelectedDietitianId(id);
         setSelectedDietitianName(name);
         setDietitians([]);
-        setQuery(name);
+        setQuery('');
         loadCalendar(id);
     }
 
@@ -143,49 +153,57 @@ export default function BookingCreateScreen() {
         return [...grouped.entries()];
     }, [slots]);
 
-    if (!hasActivePlan) {
-        return (
-            <>
-                <Stack.Screen options={{ title: 'Book consultation' }} />
-                <View style={styles.blocked}>
-                    <Text style={styles.blockedTitle}>Active plan required</Text>
-                    <Text style={styles.blockedBody}>
-                        Enroll in a diet plan before booking a consultation.
-                    </Text>
-                    <Button label="Browse plans" onPress={() => router.push('/(app)/plans/index')} />
-                </View>
-            </>
-        );
-    }
-
     return (
         <>
-            <Stack.Screen options={{ title: 'Book consultation' }} />
-            <ScrollView contentContainerStyle={styles.content}>
-                <TextField
-                    autoCapitalize="none"
-                    label="Search dietitian"
-                    onChangeText={setQuery}
-                    placeholder="Type a name…"
-                    value={query}
-                />
-
-                {searching ? <ActivityIndicator color={colors.brandDark} /> : null}
-
-                {dietitians.length > 0 ? (
-                    <View style={styles.results}>
-                        {dietitians.map((d) => (
-                            <Pressable
-                                key={d.id}
-                                onPress={() => onSelectDietitian(d.id, d.name)}
-                                style={styles.resultRow}
-                            >
-                                <Text style={styles.resultName}>{d.name}</Text>
-                                {d.title ? <Text style={styles.resultMeta}>{d.title}</Text> : null}
-                            </Pressable>
-                        ))}
+            <Stack.Screen options={{ headerShown: false }} />
+            <CustomerProgramGate>
+                <AppScreen
+                    keyboard={!selectedDietitianId}
+                    scroll
+                    showLogo={false}
+                    subtitle="Pick a time"
+                    title="Book consultation"
+                >
+                {selectedDietitianId ? (
+                    <View style={styles.selectedCard}>
+                        <View style={styles.selectedText}>
+                            <Text style={styles.selectedLabel}>Dietitian</Text>
+                            <Text style={styles.selectedName}>{selectedDietitianName}</Text>
+                        </View>
+                        <Pressable hitSlop={8} onPress={clearDietitian}>
+                            <Text style={styles.changeLink}>Change</Text>
+                        </Pressable>
                     </View>
-                ) : null}
+                ) : (
+                    <>
+                        <TextField
+                            autoCapitalize="none"
+                            label="Search dietitian"
+                            onChangeText={setQuery}
+                            onSubmitEditing={() => Keyboard.dismiss()}
+                            placeholder="Type a name…"
+                            returnKeyType="search"
+                            value={query}
+                        />
+
+                        {searching ? <ActivityIndicator color={colors.brandDark} /> : null}
+
+                        {dietitians.length > 0 ? (
+                            <View style={styles.results}>
+                                {dietitians.map((d) => (
+                                    <Pressable
+                                        key={d.id}
+                                        onPress={() => onSelectDietitian(d.id, d.name)}
+                                        style={styles.resultRow}
+                                    >
+                                        <Text style={styles.resultName}>{d.name}</Text>
+                                        {d.title ? <Text style={styles.resultMeta}>{d.title}</Text> : null}
+                                    </Pressable>
+                                ))}
+                            </View>
+                        ) : null}
+                    </>
+                )}
 
                 {selectedDietitianId ? (
                     <View style={styles.section}>
@@ -200,12 +218,10 @@ export default function BookingCreateScreen() {
                             slotSections.map(([day, daySlots]) => (
                                 <View key={day} style={styles.dayBlock}>
                                     <Text style={styles.dayLabel}>{day}</Text>
-                                    <FlatList
-                                        horizontal
-                                        data={daySlots}
-                                        keyExtractor={(item) => item.value}
-                                        renderItem={({ item }) => (
+                                    <View style={styles.slotRow}>
+                                        {daySlots.map((item) => (
                                             <Pressable
+                                                key={item.value}
                                                 onPress={() => setSelectedSlot(item.value)}
                                                 style={[
                                                     styles.slotChip,
@@ -221,9 +237,8 @@ export default function BookingCreateScreen() {
                                                     {item.label}
                                                 </Text>
                                             </Pressable>
-                                        )}
-                                        showsHorizontalScrollIndicator={false}
-                                    />
+                                        ))}
+                                    </View>
                                 </View>
                             ))
                         )}
@@ -238,7 +253,8 @@ export default function BookingCreateScreen() {
                     loading={submitting}
                     onPress={onSubmit}
                 />
-            </ScrollView>
+                </AppScreen>
+            </CustomerProgramGate>
         </>
     );
 }
@@ -287,6 +303,20 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: colors.textMuted,
     },
+    selectedCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.md,
+        padding: spacing.md,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.card,
+    },
+    selectedText: { flex: 1, minWidth: 0 },
+    selectedLabel: { fontSize: 12, fontWeight: '600', color: colors.textMuted },
+    selectedName: { fontSize: 16, fontWeight: '700', color: colors.text, marginTop: 2 },
+    changeLink: { fontSize: 14, fontWeight: '700', color: colors.brandDark },
     section: {
         gap: spacing.sm,
     },
@@ -304,6 +334,12 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: colors.textMuted,
     },
+    slotRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: spacing.sm,
+        width: '100%',
+    },
     slotChip: {
         paddingHorizontal: 14,
         paddingVertical: 10,
@@ -311,7 +347,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.border,
         backgroundColor: colors.white,
-        marginRight: spacing.sm,
     },
     slotSelected: {
         backgroundColor: colors.brandDark,

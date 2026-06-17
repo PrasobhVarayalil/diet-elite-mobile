@@ -16,7 +16,7 @@ type AuthContextValue = {
     user: AuthUser | null;
     bootstrapping: boolean;
     signingIn: boolean;
-    login: (identifier: string, password: string) => Promise<string | null>;
+    login: (identifier: string, password: string) => Promise<{ error: string | null; user: AuthUser | null }>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
 };
@@ -83,21 +83,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
 
             if (!result.ok) {
-                return result.message;
+                return { error: result.message, user: null };
             }
 
             const token = result.data?.token;
             const nextUser = result.data?.user;
 
             if (!token || !nextUser) {
-                return 'Login succeeded but no token was returned.';
+                return { error: 'Login succeeded but no token was returned.', user: null };
             }
 
             setAuthToken(token);
             await setStoredToken(token);
             setUser(nextUser);
 
-            return null;
+            return { error: null, user: nextUser };
         } finally {
             setSigningIn(false);
         }

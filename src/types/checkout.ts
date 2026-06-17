@@ -13,6 +13,14 @@ export type CheckoutSummary = {
     selling_price_paise?: number;
     mrp_paise?: number;
     has_offer?: boolean;
+    list_price_paise?: number;
+    current_plan_paid_paise?: number;
+    current_plan_name?: string | null;
+    price_difference_paise?: number;
+    upgrade_discount_percent?: number;
+    upgrade_discount_paise?: number;
+    tier_steps?: number;
+    plan_offer_savings_paise?: number;
 };
 
 export type CheckoutShowResponse = {
@@ -27,9 +35,11 @@ export type CheckoutShowResponse = {
     };
     summary: CheckoutSummary;
     schedule?: { starts_at: string; ends_at: string };
+    carryOver?: { days: number; projected_ends_at: string } | null;
     paymentMethods: PaymentMethod[];
     razorpay?: { enabled: boolean; key: string | null };
     isCurrentPlan?: boolean;
+    currentEnrollment?: Record<string, unknown> | null;
 };
 
 export type CheckoutStoreResponse = {

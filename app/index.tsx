@@ -1,5 +1,6 @@
 import { colors } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
+import { mobileEntryHref } from '@/src/lib/navigation';
 import { Redirect } from 'expo-router';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
@@ -15,7 +16,7 @@ export default function Index() {
     }
 
     if (user) {
-        return <Redirect href="/(app)" />;
+        return <Redirect href={mobileEntryHref(user)} />;
     }
 
     return <Redirect href="/login" />;

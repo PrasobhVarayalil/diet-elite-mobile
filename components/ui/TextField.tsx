@@ -6,13 +6,20 @@ type TextFieldProps = TextInputProps & {
     error?: string | null;
 };
 
-export function TextField({ label, error, style, ...rest }: TextFieldProps) {
+export function TextField({ label, error, style, multiline, ...rest }: TextFieldProps) {
     return (
         <View style={styles.wrap}>
             <Text style={styles.label}>{label}</Text>
             <TextInput
                 placeholderTextColor={colors.textMuted}
-                style={[styles.input, error ? styles.inputError : null, style]}
+                style={[
+                    styles.input,
+                    multiline && styles.inputMultiline,
+                    error ? styles.inputError : null,
+                    style,
+                ]}
+                multiline={multiline}
+                textAlignVertical={multiline ? 'top' : 'center'}
                 {...rest}
             />
             {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -35,9 +42,15 @@ const styles = StyleSheet.create({
         borderColor: colors.border,
         borderRadius: 12,
         paddingHorizontal: spacing.md,
+        paddingVertical: spacing.sm,
         fontSize: 16,
         color: colors.text,
         backgroundColor: colors.white,
+    },
+    inputMultiline: {
+        minHeight: 72,
+        maxHeight: 140,
+        paddingTop: spacing.sm,
     },
     inputError: {
         borderColor: colors.error,

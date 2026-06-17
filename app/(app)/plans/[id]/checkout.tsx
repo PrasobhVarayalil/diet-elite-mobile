@@ -1,3 +1,6 @@
+import { AppHeader } from '@/components/ui/AppHeader';
+import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
+import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
@@ -17,6 +20,12 @@ import {
 } from 'react-native';
 
 const INTENTS: CheckoutIntent[] = ['buy', 'upgrade', 'renew'];
+
+const INTENT_LABELS: Record<CheckoutIntent, string> = {
+    buy: 'New plan',
+    upgrade: 'Plan upgrade',
+    renew: 'Plan renewal',
+};
 
 function resolveIntent(raw: string | string[] | undefined): CheckoutIntent {
     const value = Array.isArray(raw) ? raw[0] : raw;
@@ -101,11 +110,15 @@ export default function CheckoutScreen() {
         ]);
     }
 
-    const total = checkout?.summary.total_paise ?? checkout?.summary.selling_price_paise;
+    const summary = checkout?.summary;
+    const total = summary?.total_paise ?? summary?.selling_price_paise;
+    const isUpgrade = intent === 'upgrade';
 
     return (
-        <>
-            <Stack.Screen options={{ title: 'Checkout' }} />
+        <CustomerProgramGate requireActivePlan={false}>
+            <View style={styles.root}>
+            <Stack.Screen options={{ headerShown: false }} />
+            <AppHeader subtitle={checkout?.plan.name ?? 'Secure checkout'} title="Checkout" />
             {loading ? (
                 <View style={styles.center}>
                     <ActivityIndicator size="large" color={colors.brandDark} />
@@ -117,10 +130,44 @@ export default function CheckoutScreen() {
                 </View>
             ) : checkout ? (
                 <ScrollView contentContainerStyle={styles.content}>
-                    <Text style={styles.planName}>{checkout.plan.name}</Text>
+                    <Badge label={INTENT_LABELS[intent]} tone={isUpgrade ? 'warning' : 'brand'} />
                     {checkout.plan.tagline ? (
                         <Text style={styles.tagline}>{checkout.plan.tagline}</Text>
                     ) : null}
+
+                    {isUpgrade && summary ? (
+                        <View style={styles.breakdown}>
+                            <Text style={styles.sectionTitle}>Upgrade summary</Text>
+                            {summary.current_plan_name ? (
+                                <Row
+                                    label="Current plan"
+                                    value={summary.current_plan_name}
+                                />
+                            ) : null}
+                            {summary.list_price_paise != null ? (
+                                <Row label="New plan price" value={formatInrFromPaise(summary.list_price_paise)} />
+                            ) : null}
+                            {(summary.price_difference_paise ?? 0) > 0 ? (
+                                <Row
+                                    label="Price difference"
+                                    value={formatInrFromPaise(summary.price_difference_paise!)}
+                                />
+                            ) : null}
+                            {(summary.upgrade_discount_paise ?? 0) > 0 ? (
+                                <Row
+                                    label={`Upgrade discount (${summary.upgrade_discount_percent ?? 0}%)`}
+                                    value={`−${formatInrFromPaise(summary.upgrade_discount_paise!)}`}
+                                    valueStyle={styles.discount}
+                                />
+                            ) : null}
+                            {checkout.carryOver && checkout.carryOver.days > 0 ? (
+                                <Text style={styles.carryOver}>
+                                    +{checkout.carryOver.days} unused days carry over
+                                </Text>
+                            ) : null}
+                        </View>
+                    ) : null}
+
                     <Text style={styles.total}>{formatInrFromPaise(total)}</Text>
                     {checkout.schedule ? (
                         <Text style={styles.meta}>
@@ -148,52 +195,67 @@ export default function CheckoutScreen() {
 
                     {error ? <Text style={styles.errorInline}>{error}</Text> : null}
 
-                    <Button label="Pay now" loading={submitting} onPress={onPay} />
+                    <Button
+                        label={isUpgrade ? 'Pay upgrade amount' : 'Pay now'}
+                        loading={submitting}
+                        onPress={onPay}
+                    />
                 </ScrollView>
             ) : null}
-        </>
+            </View>
+        </CustomerProgramGate>
+    );
+}
+
+function Row({
+    label,
+    value,
+    valueStyle,
+}: {
+    label: string;
+    value: string;
+    valueStyle?: object;
+}) {
+    return (
+        <View style={styles.row}>
+            <Text style={styles.rowLabel}>{label}</Text>
+            <Text style={[styles.rowValue, valueStyle]}>{value}</Text>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.background },
     center: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         padding: spacing.lg,
-        backgroundColor: colors.background,
         gap: spacing.md,
     },
-    content: {
-        padding: spacing.lg,
-        gap: spacing.md,
-        backgroundColor: colors.background,
-    },
-    planName: {
-        fontSize: 22,
-        fontWeight: '700',
-        color: colors.text,
-    },
-    tagline: {
-        fontSize: 15,
-        color: colors.textMuted,
-    },
-    total: {
-        fontSize: 32,
-        fontWeight: '700',
-        color: colors.brandDark,
-        marginTop: spacing.sm,
-    },
-    meta: {
-        fontSize: 14,
-        color: colors.textMuted,
+    content: { padding: spacing.lg, gap: spacing.md, paddingBottom: spacing.xl },
+    tagline: { fontSize: 15, color: colors.textMuted },
+    breakdown: {
+        backgroundColor: colors.card,
+        borderRadius: 14,
+        padding: spacing.md,
+        borderWidth: 1,
+        borderColor: colors.border,
+        gap: spacing.sm,
     },
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
         color: colors.text,
-        marginTop: spacing.md,
+        marginTop: spacing.sm,
     },
+    row: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.sm },
+    rowLabel: { fontSize: 14, color: colors.textMuted, flex: 1 },
+    rowValue: { fontSize: 14, fontWeight: '600', color: colors.text },
+    discount: { color: colors.success },
+    carryOver: { fontSize: 13, fontWeight: '600', color: colors.chart5, marginTop: 4 },
+    total: { fontSize: 32, fontWeight: '700', color: colors.brandDark },
+    meta: { fontSize: 14, color: colors.textMuted },
     methodCard: {
         backgroundColor: colors.card,
         borderRadius: 12,
@@ -206,26 +268,9 @@ const styles = StyleSheet.create({
         borderColor: colors.brandDark,
         backgroundColor: '#eef8ea',
     },
-    methodLabel: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: colors.text,
-    },
-    methodDesc: {
-        fontSize: 13,
-        color: colors.textMuted,
-    },
-    demoNote: {
-        fontSize: 13,
-        color: colors.textMuted,
-        lineHeight: 20,
-    },
-    error: {
-        color: colors.error,
-        textAlign: 'center',
-    },
-    errorInline: {
-        color: colors.error,
-        fontSize: 14,
-    },
+    methodLabel: { fontSize: 16, fontWeight: '600', color: colors.text },
+    methodDesc: { fontSize: 13, color: colors.textMuted },
+    demoNote: { fontSize: 13, color: colors.textMuted, lineHeight: 20 },
+    error: { color: colors.error, textAlign: 'center' },
+    errorInline: { color: colors.error, fontSize: 14 },
 });

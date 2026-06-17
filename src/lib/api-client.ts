@@ -113,3 +113,11 @@ export function apiGet<T = Record<string, unknown>>(path: string) {
 export function apiPost<T = Record<string, unknown>>(path: string, body: unknown) {
     return apiRequest<T>(path, 'POST', body);
 }
+
+export function apiPut<T = Record<string, unknown>>(path: string, body: unknown) {
+    return apiRequest<T>(path, 'PUT', body);
+}
+
+export function apiDelete<T = Record<string, unknown>>(path: string) {
+    return apiRequest<T>(path, 'DELETE');
+}

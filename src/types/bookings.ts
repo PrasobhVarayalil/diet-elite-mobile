@@ -4,12 +4,18 @@ export type BookingListItem = {
     status: string;
     duration_minutes?: number;
     cancellation_reason?: string | null;
+    user?: { id?: string; name: string; email?: string } | null;
     dietitian?: {
         id: string;
         name: string;
         title?: string | null;
     } | null;
     can_cancel?: boolean;
+    can_approve?: boolean;
+    can_reject?: boolean;
+    can_dismiss?: boolean;
+    can_complete?: boolean;
+    is_expired_request?: boolean;
 };
 
 export type BookingsIndexResponse = {

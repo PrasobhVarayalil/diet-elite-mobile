@@ -1,4 +1,7 @@
-import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
+import { AppHeader } from '@/components/ui/AppHeader';
+import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
+import { Badge } from '@/components/ui/Badge';
+import { colors, formatDateTime, formatInrFromPaise, shadow, spacing } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import type { PaymentListItem, PaymentsIndexResponse } from '@/src/types/checkout';
@@ -20,7 +23,7 @@ function PaymentRow({ item }: { item: PaymentListItem }) {
                 <Text style={styles.status}>{item.status_label ?? item.status}</Text>
             </View>
             {item.description ? <Text style={styles.desc}>{item.description}</Text> : null}
-            <Text style={styles.date}>{item.paid_at ?? item.created_at ?? '—'}</Text>
+            <Text style={styles.date}>{formatDateTime(item.paid_at ?? item.created_at)}</Text>
         </View>
     );
 }
@@ -66,39 +69,45 @@ export default function PaymentsScreen() {
     }
 
     return (
-        <FlatList
-            contentContainerStyle={styles.list}
-            data={payments}
-            keyExtractor={(item) => item.id}
-            ListEmptyComponent={
-                <View style={styles.empty}>
-                    <Text style={styles.emptyTitle}>No payments yet</Text>
-                    <Text style={styles.emptyBody}>Enroll in a plan from the Plans tab.</Text>
-                </View>
-            }
-            ListHeaderComponent={
-                <View style={styles.header}>
-                    {summary ? (
-                        <View style={styles.summaryCard}>
-                            <Text style={styles.summaryLabel}>Total spent</Text>
-                            <Text style={styles.summaryValue}>
-                                {formatInrFromPaise(summary.total_spent_paise)}
-                            </Text>
-                            <Text style={styles.summaryMeta}>
-                                {summary.successful_count} successful of {summary.payment_count}
-                            </Text>
-                        </View>
-                    ) : null}
-                    {error ? <Text style={styles.error}>{error}</Text> : null}
-                </View>
-            }
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />}
-            renderItem={({ item }) => <PaymentRow item={item} />}
-        />
+        <CustomerProgramGate requireActivePlan={false}>
+            <View style={styles.root}>
+            <AppHeader subtitle="Invoices and receipts" title="Payments" />
+            <FlatList
+                contentContainerStyle={styles.list}
+                data={payments}
+                keyExtractor={(item) => item.id}
+                ListEmptyComponent={
+                    <View style={styles.empty}>
+                        <Text style={styles.emptyTitle}>No payments yet</Text>
+                        <Text style={styles.emptyBody}>Enroll in a plan from the Plans tab.</Text>
+                    </View>
+                }
+                ListHeaderComponent={
+                    <View style={styles.header}>
+                        {summary ? (
+                            <View style={styles.summaryCard}>
+                                <Text style={styles.summaryLabel}>Total spent</Text>
+                                <Text style={styles.summaryValue}>
+                                    {formatInrFromPaise(summary.total_spent_paise)}
+                                </Text>
+                                <Text style={styles.summaryMeta}>
+                                    {summary.successful_count} successful of {summary.payment_count}
+                                </Text>
+                            </View>
+                        ) : null}
+                        {error ? <Text style={styles.error}>{error}</Text> : null}
+                    </View>
+                }
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />}
+                renderItem={({ item }) => <PaymentRow item={item} />}
+            />
+            </View>
+        </CustomerProgramGate>
     );
 }
 
 const styles = StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.background },
     center: {
         flex: 1,
         alignItems: 'center',
@@ -114,11 +123,12 @@ const styles = StyleSheet.create({
     },
     summaryCard: {
         backgroundColor: colors.card,
-        borderRadius: 16,
+        borderRadius: 18,
         padding: spacing.lg,
         borderWidth: 1,
         borderColor: colors.border,
         gap: spacing.xs,
+        ...shadow.card,
     },
     summaryLabel: {
         fontSize: 13,

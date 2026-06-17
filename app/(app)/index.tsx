@@ -1,66 +1,107 @@
-import { Screen } from '@/components/ui/Screen';
-import { colors, spacing } from '@/constants/theme';
+import { AppHeader } from '@/components/ui/AppHeader';
+import { HeaderIconButton } from '@/components/ui/HeaderIconButton';
+import { AdminHomeScreen } from '@/components/home/AdminHomeScreen';
+import { AdvisorHomeScreen } from '@/components/home/AdvisorHomeScreen';
+import CustomerHomeScreen from '@/components/home/CustomerHomeScreen';
+import { DietitianHomeScreen } from '@/components/home/DietitianHomeScreen';
+import { StaffHomeScreen } from '@/components/home/StaffHomeScreen';
+import { colors } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
-import { StyleSheet, Text, View } from 'react-native';
+import { appHref } from '@/src/lib/navigation';
+import { isAdmin, isAdvisor, isCustomer, isDietitian, isStaff } from '@/src/lib/user-access';
+import { useRouter } from 'expo-router';
+import type { ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
+
+function StaffDashboard({
+    subtitle,
+    title,
+    headerRight,
+    children,
+}: {
+    subtitle: string;
+    title: string;
+    headerRight?: ReactNode;
+    children: ReactNode;
+}) {
+    return (
+        <View style={styles.root}>
+            <AppHeader right={headerRight} subtitle={subtitle} title={title} />
+            <View style={styles.body}>{children}</View>
+        </View>
+    );
+}
 
 export default function HomeScreen() {
+    const router = useRouter();
     const { user } = useAuth();
 
-    const planLine =
-        user?.has_active_plan === true
-            ? 'Your plan is active — browse bookings and health tools on web for now.'
-            : user?.plan_access === 'expired'
-              ? `Your plan expired${user.expired_plan_name ? `: ${user.expired_plan_name}` : ''}. Renew from Plans.`
-              : 'Browse plans and enroll to unlock your dashboard features.';
+    if (isAdmin(user)) {
+        return (
+            <StaffDashboard
+                headerRight={
+                    <HeaderIconButton
+                        accessibilityLabel="Open admin portal"
+                        icon="grid-outline"
+                        label="Portal"
+                        onPress={() => router.push(appHref('/(app)/admin'))}
+                    />
+                }
+                subtitle="Today's operations"
+                title="Admin home"
+            >
+                <AdminHomeScreen />
+            </StaffDashboard>
+        );
+    }
+
+    if (isDietitian(user)) {
+        return (
+            <StaffDashboard subtitle="Your practice at a glance" title="Dashboard">
+                <DietitianHomeScreen />
+            </StaffDashboard>
+        );
+    }
+
+    if (isAdvisor(user)) {
+        return (
+            <StaffDashboard
+                headerRight={
+                    <HeaderIconButton
+                        accessibilityLabel="Open advisor tools"
+                        icon="briefcase-outline"
+                        label="Tools"
+                        onPress={() => router.push(appHref('/(app)/advisor'))}
+                    />
+                }
+                subtitle="Enrollments & first consults"
+                title="Advisor dashboard"
+            >
+                <AdvisorHomeScreen />
+            </StaffDashboard>
+        );
+    }
+
+    if (isStaff(user) && !isDietitian(user)) {
+        return (
+            <StaffDashboard subtitle={user?.role_label ?? 'Staff'} title="Diet Elite">
+                <StaffHomeScreen />
+            </StaffDashboard>
+        );
+    }
+
+    if (isCustomer(user)) {
+        return <CustomerHomeScreen />;
+    }
 
     return (
-        <Screen title={`Hello, ${user?.name?.split(' ')[0] ?? 'there'}`} subtitle={planLine}>
-            <View style={styles.card}>
-                <Text style={styles.label}>Role</Text>
-                <Text style={styles.value}>{user?.role_label}</Text>
-            </View>
-
-            <View style={styles.card}>
-                <Text style={styles.label}>Plan access</Text>
-                <Text style={styles.value}>{user?.plan_access ?? 'none'}</Text>
-            </View>
-
-            <View style={styles.card}>
-                <Text style={styles.label}>Mobile MVP</Text>
-                <Text style={styles.body}>
-                    Login, plans list, and plan details are wired to the same Laravel API as the web app.
-                    Bookings, messages, and checkout will follow in the next iterations.
-                </Text>
-            </View>
-        </Screen>
+        <StaffDashboard subtitle="Diet Elite" title="Home">
+            <StaffHomeScreen />
+        </StaffDashboard>
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: colors.card,
-        borderRadius: 16,
-        padding: spacing.lg,
-        marginBottom: spacing.md,
-        borderWidth: 1,
-        borderColor: colors.border,
-        gap: spacing.sm,
-    },
-    label: {
-        fontSize: 13,
-        fontWeight: '600',
-        color: colors.textMuted,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-    },
-    value: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: colors.text,
-    },
-    body: {
-        fontSize: 15,
-        lineHeight: 22,
-        color: colors.textMuted,
-    },
+    root: { flex: 1, backgroundColor: colors.background },
+    body: { flex: 1, minHeight: 0 },
 });
