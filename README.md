@@ -48,6 +48,21 @@ After seeding demo data on the API (`php artisan db:seed-demo --force`):
 | Email | `customer@dietelite.com` |
 | Password | `password` (or `DEMO_SEED_PASSWORD`) |
 
+## Branch workflow
+
+Matches **diet-elite-api**:
+
+| Branch | Purpose |
+|--------|---------|
+| `develop` | Day-to-day development (default checkout) |
+| `staging` | Pre-production / QA |
+| `main` | Production releases |
+
+```bash
+git checkout develop
+git pull origin develop
+```
+
 ## MVP screens (customer)
 
 - Sign in / sign out (Bearer token)
@@ -80,6 +95,6 @@ constants/theme.ts   Diet Elite brand colors
 ## Next steps
 
 - [ ] Razorpay native checkout (EAS build + `react-native-razorpay`)
-- [ ] Notifications
-- [ ] Customer ↔ dietitian messages
+- [x] Notifications
+- [x] Customer ↔ dietitian messages (all roles)
 - [ ] EAS Build for App Store / Play Store
