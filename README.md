@@ -63,6 +63,15 @@ git checkout develop
 git pull origin develop
 ```
 
+**Promotion (required order):**
+
+```powershell
+# API or mobile — from repo root
+.\scripts\promote-branches.ps1
+```
+
+Or: merge `develop` → `staging`, then `staging` → `main` (never `develop` → `main` directly).
+
 ## MVP screens (customer)
 
 - Sign in / sign out (Bearer token)
