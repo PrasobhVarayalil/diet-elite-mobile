@@ -1,4 +1,4 @@
-# Promote develop → staging → main (diet-elite-mobile).
+# Promote develop -> staging -> main (diet-elite-mobile).
 param([switch]$SkipCi)
 
 $ErrorActionPreference = 'Stop'
@@ -13,13 +13,13 @@ Write-Host '=== Pull develop ==='
 git checkout develop
 git pull origin develop
 
-Write-Host '=== Merge develop → staging ==='
+Write-Host '=== Merge develop -> staging ==='
 git checkout staging
 git pull origin staging
 git merge develop -m "Promote develop to staging."
 git push origin staging
 
-Write-Host '=== Merge staging → main ==='
+Write-Host '=== Merge staging -> main ==='
 git checkout main
 git pull origin main
 git merge staging -m "Promote staging to production (main)."
