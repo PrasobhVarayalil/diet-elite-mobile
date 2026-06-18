@@ -12,7 +12,7 @@
     },
     "android": {
       "package": "com.dietelite.mobile",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#227014",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -36,7 +36,13 @@
           "backgroundColor": "#f7faf5"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Diet Elite to access your photos for profile pictures."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

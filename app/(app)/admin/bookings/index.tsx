@@ -1,6 +1,7 @@
 import { AdminListScreen } from '@/components/admin/AdminListScreen';
 import { adminListStyles } from '@/components/admin/admin-list-styles';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
+import { Button } from '@/components/ui/Button';
 import { formatDateTime } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
@@ -36,6 +37,12 @@ export default function AdminBookingsScreen() {
 
     return (
         <AdminListScreen
+            actions={
+                <Button
+                    label="Create booking"
+                    onPress={() => router.push(appHref('/(app)/admin/bookings/create'))}
+                />
+            }
             data={bookings}
             keyExtractor={(item) => item.id}
             loading={loading}

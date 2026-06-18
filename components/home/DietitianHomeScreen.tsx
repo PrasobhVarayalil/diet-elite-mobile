@@ -163,6 +163,18 @@ export function DietitianHomeScreen() {
                 <SectionTitle>Quick actions</SectionTitle>
                 <FeatureGrid>
                     <FeatureTile
+                        colorIndex={2}
+                        icon="time-outline"
+                        label="My schedule"
+                        onPress={() => router.push(appHref('/(app)/schedule'))}
+                    />
+                    <FeatureTile
+                        colorIndex={5}
+                        icon="person-add-outline"
+                        label="Book client"
+                        onPress={() => router.push(appHref('/(app)/bookings/staff-create'))}
+                    />
+                    <FeatureTile
                         colorIndex={3}
                         icon="calendar-outline"
                         label="Appointments"

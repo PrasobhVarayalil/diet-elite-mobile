@@ -57,7 +57,10 @@ export const apiRoutes = {
     },
     dietitian: {
         dashboard: '/api/v1/dietitian/dashboard',
+        schedule: '/api/v1/dietitian/schedule',
         appointments: '/api/v1/dietitian/appointments',
+        appointmentsCreate: '/api/v1/dietitian/appointments/create',
+        appointmentsStore: '/api/v1/dietitian/appointments',
         appointmentShow: (id: string) => `/api/v1/dietitian/appointments/${id}`,
         appointmentApprove: (id: string) => `/api/v1/dietitian/appointments/${id}/approve`,
         appointmentReject: (id: string) => `/api/v1/dietitian/appointments/${id}/reject`,

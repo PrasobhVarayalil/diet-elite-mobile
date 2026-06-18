@@ -1,12 +1,13 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { PlanActions } from '@/components/plans/PlanActions';
 import { colors, chartPalette, formatInrFromPaise, shadow, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import type { CurrentEnrollment } from '@/src/lib/customer-plan-actions';
-import { APP_ROUTES } from '@/src/lib/navigation';
+import { APP_ROUTES, appHref } from '@/src/lib/navigation';
 import { isCustomer } from '@/src/lib/user-access';
 import type { CheckoutIntent } from '@/src/types/checkout';
 import type { PlanSummary, PlansIndexResponse } from '@/src/types/plans';
@@ -157,11 +158,22 @@ export default function PlansScreen() {
                     </View>
                 }
                 ListHeaderComponent={
-                    error ? (
-                        <View style={styles.errorBox}>
-                            <Text style={styles.errorText}>{error}</Text>
-                        </View>
-                    ) : null
+                    <>
+                        {error ? (
+                            <View style={styles.errorBox}>
+                                <Text style={styles.errorText}>{error}</Text>
+                            </View>
+                        ) : null}
+                        {allPlans.length >= 2 ? (
+                            <View style={styles.compareBar}>
+                                <Button
+                                    label="Compare plans"
+                                    onPress={() => router.push(appHref('/(app)/plans/compare'))}
+                                    variant="secondary"
+                                />
+                            </View>
+                        ) : null}
+                    </>
                 }
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={() => loadPlans(true)} />
@@ -223,5 +235,6 @@ const styles = StyleSheet.create({
         padding: spacing.md,
         marginBottom: spacing.md,
     },
+    compareBar: { marginBottom: spacing.md },
     errorText: { color: colors.error, fontSize: 14 },
 });

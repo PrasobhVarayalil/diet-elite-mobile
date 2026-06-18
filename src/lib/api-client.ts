@@ -106,6 +106,65 @@ export async function apiRequest<T = Record<string, unknown>>(
     }
 }
 
+export async function apiUpload<T = Record<string, unknown>>(
+    path: string,
+    fieldName: string,
+    uri: string,
+    fileName: string,
+    mimeType: string,
+): Promise<ApiResult<T>> {
+    try {
+        const headers: Record<string, string> = {
+            Accept: 'application/json',
+            'X-Client': 'mobile',
+        };
+
+        if (authToken) {
+            headers.Authorization = `Bearer ${authToken}`;
+        }
+
+        const formData = new FormData();
+        formData.append(fieldName, {
+            uri,
+            name: fileName,
+            type: mimeType,
+        } as unknown as Blob);
+
+        const response = await fetch(apiUrl(path), {
+            method: 'POST',
+            headers,
+            body: formData,
+        });
+
+        const payload = await parseJsonBody(response);
+
+        if (!response.ok) {
+            const errorPayload = payload as ApiErrorResponse | null;
+            return {
+                ok: false,
+                status: response.status,
+                message: errorPayload?.message ?? 'Upload failed.',
+                errors: normalizeErrors(errorPayload?.errors),
+            };
+        }
+
+        const successPayload = payload as ApiSuccessResponse<T> | null;
+
+        return {
+            ok: true,
+            status: response.status,
+            message: successPayload?.message ?? 'Uploaded.',
+            data: successPayload?.data,
+        };
+    } catch {
+        return {
+            ok: false,
+            status: 0,
+            message: 'Network error during upload.',
+        };
+    }
+}
+
 export function apiGet<T = Record<string, unknown>>(path: string) {
     return apiRequest<T>(path, 'GET');
 }

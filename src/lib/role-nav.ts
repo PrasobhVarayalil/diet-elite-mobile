@@ -138,6 +138,12 @@ export function profileMenuFor(user: AuthUser | null | undefined): ProfileMenuIt
     if (isDietitian(user)) {
         return [
             {
+                icon: 'time-outline',
+                label: 'My schedule',
+                route: '/(app)/schedule',
+                section: 'program',
+            },
+            {
                 icon: 'people-outline',
                 label: 'My clients',
                 route: '/(app)/clients',

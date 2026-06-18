@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { BookingActions } from '@/components/bookings/BookingActions';
 import { Button } from '@/components/ui/Button';
+import { PromptModal } from '@/components/ui/PromptModal';
 import { colors, formatDateTime, shadow, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet, apiPost } from '@/src/lib/api-client';
@@ -92,6 +93,7 @@ export default function BookingsScreen() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [actingId, setActingId] = useState<string | null>(null);
+    const [cancelTarget, setCancelTarget] = useState<BookingListItem | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [bookings, setBookings] = useState<BookingListItem[]>([]);
 
@@ -143,6 +145,7 @@ export default function BookingsScreen() {
     async function runDietitianAction(
         item: BookingListItem,
         kind: 'approve' | 'reject' | 'cancel' | 'complete',
+        reason?: string,
     ) {
         setActingId(item.id);
         const routes = {
@@ -151,7 +154,7 @@ export default function BookingsScreen() {
             cancel: apiRoutes.dietitian.appointmentCancel(item.id),
             complete: apiRoutes.dietitian.appointmentComplete(item.id),
         };
-        const body = kind === 'cancel' ? { reason: 'Cancelled from mobile app' } : {};
+        const body = kind === 'cancel' ? { reason: reason || 'Cancelled from mobile app' } : {};
         const result = await apiPost(routes[kind], body);
         setActingId(null);
         if (result.ok) {
@@ -162,27 +165,28 @@ export default function BookingsScreen() {
     }
 
     function onCancel(item: BookingListItem) {
-        Alert.alert('Cancel booking', 'Cancel this consultation?', [
-            { text: 'Keep', style: 'cancel' },
-            {
-                text: 'Cancel booking',
-                style: 'destructive',
-                onPress: async () => {
-                    if (dietitianView) {
-                        await runDietitianAction(item, 'cancel');
-                        return;
-                    }
-                    const result = await apiPost(apiRoutes.bookings.cancel(item.id), {
-                        reason: 'Cancelled from mobile app',
-                    });
-                    if (result.ok) {
-                        load(true);
-                    } else {
-                        Alert.alert('Error', result.message);
-                    }
-                },
-            },
-        ]);
+        setCancelTarget(item);
+    }
+
+    async function confirmCancel(reason: string) {
+        const item = cancelTarget;
+        setCancelTarget(null);
+        if (!item) {
+            return;
+        }
+
+        const cancelReason = reason || 'Cancelled from mobile app';
+        if (dietitianView) {
+            await runDietitianAction(item, 'cancel', cancelReason);
+            return;
+        }
+
+        const result = await apiPost(apiRoutes.bookings.cancel(item.id), { reason: cancelReason });
+        if (result.ok) {
+            load(true);
+        } else {
+            Alert.alert('Error', result.message);
+        }
     }
 
     function openBooking(item: BookingListItem) {
@@ -226,6 +230,14 @@ export default function BookingsScreen() {
                         </Pressable>
                     ))}
                 </ScrollView>
+            ) : null}
+            {dietitianView ? (
+                <View style={styles.toolbar}>
+                    <Button
+                        label="Book for client"
+                        onPress={() => router.push(appHref('/(app)/bookings/staff-create'))}
+                    />
+                </View>
             ) : null}
             {isCustomer(user) && customerHasActivePlan(user) ? (
                 <View style={styles.toolbar}>
@@ -279,6 +291,14 @@ export default function BookingsScreen() {
                     />
                 )}
                 style={styles.listFlex}
+            />
+            <PromptModal
+                confirmLabel="Cancel booking"
+                message="Add an optional reason for cancelling this consultation."
+                onCancel={() => setCancelTarget(null)}
+                onConfirm={(reason) => void confirmCancel(reason)}
+                title="Cancel booking"
+                visible={cancelTarget !== null}
             />
         </View>
     );

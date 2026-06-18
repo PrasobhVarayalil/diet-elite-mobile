@@ -1,8 +1,9 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { FormSwitch } from '@/components/ui/FormSwitch';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
-import { apiDelete, apiGet, apiPost } from '@/src/lib/api-client';
+import { apiDelete, apiGet, apiPost, apiPut } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { DAY_LABELS, WEEKDAY_NUMBERS } from '@/src/lib/schedule-days';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -29,6 +30,11 @@ export default function AdminScheduleShowScreen() {
     const [endTime, setEndTime] = useState('17:00');
     const [slotMinutes, setSlotMinutes] = useState('30');
     const [saving, setSaving] = useState(false);
+    const [editingShift, setEditingShift] = useState<Shift | null>(null);
+    const [editStart, setEditStart] = useState('09:00');
+    const [editEnd, setEditEnd] = useState('17:00');
+    const [editSlotMinutes, setEditSlotMinutes] = useState('30');
+    const [editActive, setEditActive] = useState(true);
 
     const load = useCallback(async () => {
         if (!id) {
@@ -48,6 +54,35 @@ export default function AdminScheduleShowScreen() {
     useEffect(() => {
         load();
     }, [load]);
+
+    function beginEdit(shift: Shift) {
+        setEditingShift(shift);
+        setEditStart(shift.start_time);
+        setEditEnd(shift.end_time);
+        setEditSlotMinutes(String(shift.slot_duration_minutes ?? 30));
+        setEditActive(shift.is_active !== false);
+    }
+
+    async function saveEdit() {
+        if (!id || !editingShift) {
+            return;
+        }
+        setSaving(true);
+        const result = await apiPut(apiRoutes.admin.schedules.update(id, editingShift.id), {
+            day_of_week: editingShift.day_of_week,
+            start_time: editStart,
+            end_time: editEnd,
+            slot_duration_minutes: Number(editSlotMinutes) || 30,
+            is_active: editActive,
+        });
+        setSaving(false);
+        if (result.ok) {
+            setEditingShift(null);
+            load();
+        } else {
+            Alert.alert('Error', result.message);
+        }
+    }
 
     async function addShift() {
         if (!id) {
@@ -150,15 +185,48 @@ export default function AdminScheduleShowScreen() {
                 ) : (
                     shifts.map((shift) => (
                         <View key={shift.id} style={styles.card}>
-                            <Text style={styles.title}>
-                                {shift.day_label ?? DAY_LABELS[shift.day_of_week] ?? `Day ${shift.day_of_week}`}
-                            </Text>
-                            <Text style={styles.meta}>
-                                {shift.start_time} – {shift.end_time}
-                                {shift.slot_duration_minutes ? ` · ${shift.slot_duration_minutes} min slots` : ''}
-                                {shift.is_active === false ? ' · Paused' : ''}
-                            </Text>
-                            <Button label="Remove" onPress={() => removeShift(shift)} variant="secondary" />
+                            {editingShift?.id === shift.id ? (
+                                <>
+                                    <Text style={styles.title}>
+                                        {shift.day_label ?? DAY_LABELS[shift.day_of_week] ?? `Day ${shift.day_of_week}`}
+                                    </Text>
+                                    <TextField label="Start (HH:MM)" onChangeText={setEditStart} value={editStart} />
+                                    <TextField label="End (HH:MM)" onChangeText={setEditEnd} value={editEnd} />
+                                    <TextField
+                                        keyboardType="number-pad"
+                                        label="Slot duration (minutes)"
+                                        onChangeText={setEditSlotMinutes}
+                                        value={editSlotMinutes}
+                                    />
+                                    <FormSwitch
+                                        hint="Paused shifts are hidden from booking"
+                                        label="Active"
+                                        onValueChange={setEditActive}
+                                        value={editActive}
+                                    />
+                                    <Button label="Save changes" loading={saving} onPress={() => void saveEdit()} />
+                                    <Button
+                                        label="Cancel edit"
+                                        onPress={() => setEditingShift(null)}
+                                        variant="secondary"
+                                    />
+                                </>
+                            ) : (
+                                <>
+                                    <Text style={styles.title}>
+                                        {shift.day_label ?? DAY_LABELS[shift.day_of_week] ?? `Day ${shift.day_of_week}`}
+                                    </Text>
+                                    <Text style={styles.meta}>
+                                        {shift.start_time} – {shift.end_time}
+                                        {shift.slot_duration_minutes ? ` · ${shift.slot_duration_minutes} min slots` : ''}
+                                        {shift.is_active === false ? ' · Paused' : ''}
+                                    </Text>
+                                    <View style={styles.rowActions}>
+                                        <Button label="Edit" onPress={() => beginEdit(shift)} variant="secondary" />
+                                        <Button label="Remove" onPress={() => removeShift(shift)} variant="secondary" />
+                                    </View>
+                                </>
+                            )}
                         </View>
                     ))
                 )}
@@ -210,6 +278,7 @@ const styles = StyleSheet.create({
     },
     title: { fontSize: 15, fontWeight: '600', color: colors.text },
     meta: { fontSize: 13, color: colors.textMuted },
+    rowActions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
     section: { fontSize: 16, fontWeight: '700', color: colors.text, marginTop: spacing.md },
     hint: { fontSize: 12, fontWeight: '600', color: colors.textMuted },
     dayRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
