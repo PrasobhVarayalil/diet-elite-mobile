@@ -13,7 +13,8 @@ import {
     scheduleConflictMessage,
     type ScheduleShift,
 } from '@/src/lib/schedule-conflicts';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { appHref } from '@/src/lib/navigation';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -29,6 +30,7 @@ type Shift = {
 
 export default function AdminScheduleShowScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [name, setName] = useState('');
     const [shifts, setShifts] = useState<Shift[]>([]);
@@ -340,6 +342,11 @@ export default function AdminScheduleShowScreen() {
                     label="Add Mon–Fri (same hours)"
                     loading={saving}
                     onPress={addWeekdays}
+                    variant="secondary"
+                />
+                <Button
+                    label="Mark leave (dates)"
+                    onPress={() => router.push(appHref(`/(app)/admin/schedules/${id}/leave`))}
                     variant="secondary"
                 />
             </ScrollView>

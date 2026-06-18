@@ -1,13 +1,14 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { Button } from '@/components/ui/Button';
 import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { DAY_LABELS } from '@/src/lib/schedule-days';
-import { APP_ROUTES } from '@/src/lib/navigation';
+import { APP_ROUTES, appHref } from '@/src/lib/navigation';
 import { isDietitian } from '@/src/lib/user-access';
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -27,6 +28,7 @@ type ScheduleResponse = {
 
 export default function DietitianScheduleScreen() {
     const { user } = useAuth();
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<ScheduleResponse | null>(null);
 
@@ -78,8 +80,14 @@ export default function DietitianScheduleScreen() {
             ) : (
                 <ScrollView contentContainerStyle={styles.content}>
                     <Text style={styles.note}>
-                        Read-only view of your bookable hours. Admins manage shifts under Admin → Dietitian slots.
+                        Read-only view of your bookable hours. Admins manage recurring shifts. Use request leave for
+                        specific dates when you are unavailable.
                     </Text>
+                    <Button
+                        label="Request leave"
+                        onPress={() => router.push(appHref('/(app)/leave'))}
+                        variant="secondary"
+                    />
                     {displayShifts.length === 0 ? (
                         <Text style={styles.meta}>No shifts configured yet.</Text>
                     ) : (

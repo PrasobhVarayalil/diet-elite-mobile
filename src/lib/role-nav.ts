@@ -144,6 +144,12 @@ export function profileMenuFor(user: AuthUser | null | undefined): ProfileMenuIt
                 section: 'program',
             },
             {
+                icon: 'airplane-outline',
+                label: 'Request leave',
+                route: '/(app)/leave',
+                section: 'program',
+            },
+            {
                 icon: 'people-outline',
                 label: 'My clients',
                 route: '/(app)/clients',

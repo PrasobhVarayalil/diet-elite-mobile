@@ -31,6 +31,7 @@ export function AdminHomeScreen() {
     const recentEnrollments = data?.recentEnrollments ?? [];
     const needsAttention =
         (stats.pendingApprovals ?? 0) > 0 ||
+        (stats.pendingLeaveRequests ?? 0) > 0 ||
         (stats.pendingEnrollments ?? 0) > 0 ||
         (stats.pendingPayments ?? 0) > 0;
 
@@ -48,6 +49,9 @@ export function AdminHomeScreen() {
                     <Text style={styles.alertBody}>
                         {(stats.pendingApprovals ?? 0) > 0
                             ? `${stats.pendingApprovals} booking${stats.pendingApprovals === 1 ? '' : 's'} awaiting approval. `
+                            : ''}
+                        {(stats.pendingLeaveRequests ?? 0) > 0
+                            ? `${stats.pendingLeaveRequests} dietitian leave request${stats.pendingLeaveRequests === 1 ? '' : 's'}. `
                             : ''}
                         {(stats.pendingEnrollments ?? 0) > 0
                             ? `${stats.pendingEnrollments} pending enrollment${stats.pendingEnrollments === 1 ? '' : 's'}. `

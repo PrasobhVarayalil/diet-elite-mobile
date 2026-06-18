@@ -8,6 +8,7 @@ export type AdminDashboardStats = {
     advisors?: number;
     activeEnrollments?: number;
     pendingApprovals?: number;
+    pendingLeaveRequests?: number;
     pendingEnrollments?: number;
     upcomingBookings?: number;
     revenuePaise?: number;

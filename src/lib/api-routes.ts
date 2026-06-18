@@ -61,6 +61,12 @@ export const apiRoutes = {
     dietitian: {
         dashboard: '/api/v1/dietitian/dashboard',
         schedule: '/api/v1/dietitian/schedule',
+        leave: {
+            index: '/api/v1/dietitian/leave',
+            preview: '/api/v1/dietitian/leave/preview',
+            store: '/api/v1/dietitian/leave',
+            destroy: (id: string) => `/api/v1/dietitian/leave/${id}`,
+        },
         appointments: '/api/v1/dietitian/appointments',
         appointmentsCreate: '/api/v1/dietitian/appointments/create',
         appointmentsStore: '/api/v1/dietitian/appointments',
@@ -167,6 +173,14 @@ export const apiRoutes = {
                 `/api/v1/admin/dietitians/${dietitianId}/schedules/${scheduleId}`,
             destroy: (dietitianId: string, scheduleId: string) =>
                 `/api/v1/admin/dietitians/${dietitianId}/schedules/${scheduleId}`,
+            leave: {
+                show: (dietitianId: string) => `/api/v1/admin/schedules/${dietitianId}/leave`,
+                preview: (dietitianId: string) =>
+                    `/api/v1/admin/dietitians/${dietitianId}/unavailability/preview`,
+                store: (dietitianId: string) => `/api/v1/admin/dietitians/${dietitianId}/unavailability`,
+                approve: (leaveId: string) => `/api/v1/admin/unavailability/${leaveId}/approve`,
+                destroy: (leaveId: string) => `/api/v1/admin/unavailability/${leaveId}`,
+            },
         },
     },
 } as const;

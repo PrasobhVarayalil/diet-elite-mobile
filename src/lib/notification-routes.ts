@@ -58,6 +58,22 @@ export function mobileNotificationRoute(
             }
         }
 
+        if (href.includes('/bookings/create') || notification.type === 'booking_cancelled_leave') {
+            const dietitianId = data?.dietitian_id;
+            if (typeof dietitianId === 'string' && dietitianId.length > 0) {
+                return appHref(`/(app)/bookings/create?dietitianId=${dietitianId}`);
+            }
+            return APP_ROUTES.bookingCreate;
+        }
+
+        if (href.includes('/admin/schedules') && href.includes('/leave') && isAdmin(user)) {
+            const dietitianId = data?.dietitian_id;
+            if (typeof dietitianId === 'string') {
+                return appHref(`/(app)/admin/schedules/${dietitianId}/leave`);
+            }
+            return appHref('/(app)/admin/schedules');
+        }
+
         if (href.includes('/bookings') || href.includes('/appointments')) {
             return APP_ROUTES.bookings;
         }
