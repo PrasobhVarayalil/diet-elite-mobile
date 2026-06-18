@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/Badge';
 import { chartPalette } from '@/constants/theme';
-import { planRankName, planRankToneIndex } from '@/src/lib/plan-rank';
-import type { PlanSummary } from '@/src/types/plans';
+import { formatPlanHighlight, planRankName, planRankToneIndex } from '@/src/lib/plan-rank';
+import type { PlanRankHighlight, PlanSummary } from '@/src/types/plans';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
@@ -25,18 +25,27 @@ export function PlanRankBadge({ rank, large = false }: Props) {
     );
 }
 
-export function PlanHighlights({ highlights }: { highlights?: string[] | null }) {
+export function PlanHighlights({ highlights }: { highlights?: PlanRankHighlight[] | string[] | null }) {
     if (!highlights?.length) {
         return null;
     }
 
     return (
         <View style={styles.highlights}>
-            {highlights.slice(0, 4).map((item) => (
-                <Text key={item} style={styles.highlightItem}>
-                    • {item}
-                </Text>
-            ))}
+            {highlights.slice(0, 4).map((item, index) => {
+                const text = formatPlanHighlight(item);
+                if (!text) {
+                    return null;
+                }
+
+                const key = typeof item === 'string' ? item : (item.key ?? `${text}-${index}`);
+
+                return (
+                    <Text key={key} style={styles.highlightItem}>
+                        • {text}
+                    </Text>
+                );
+            })}
         </View>
     );
 }

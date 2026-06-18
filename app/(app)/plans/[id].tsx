@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { PlanActions } from '@/components/plans/PlanActions';
 import { PlanHighlights, PlanRankBadge } from '@/components/plans/PlanRankBadge';
+import { planFeatureGroupItems, planFeatureGroupLabel } from '@/src/lib/plan-rank';
 import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
@@ -131,16 +132,25 @@ export default function PlanDetailScreen() {
                     ) : null}
                     {plan.description ? <Text style={styles.description}>{plan.description}</Text> : null}
                     <PlanHighlights highlights={plan.plan_rank?.highlights} />
-                    {plan.plan_rank?.feature_groups?.map((group) => (
-                        <View key={group.title} style={styles.featureGroup}>
-                            <Text style={styles.featureTitle}>{group.title}</Text>
-                            {group.items.map((item) => (
-                                <Text key={item} style={styles.featureItem}>
-                                    • {item}
-                                </Text>
-                            ))}
-                        </View>
-                    ))}
+                    {plan.plan_rank?.feature_groups?.map((group, groupIndex) => {
+                        const items = planFeatureGroupItems(group);
+                        if (items.length === 0) {
+                            return null;
+                        }
+
+                        const groupKey = group.id ?? group.label ?? group.title ?? `group-${groupIndex}`;
+
+                        return (
+                            <View key={groupKey} style={styles.featureGroup}>
+                                <Text style={styles.featureTitle}>{planFeatureGroupLabel(group)}</Text>
+                                {items.map((line, itemIndex) => (
+                                    <Text key={`${groupKey}-${itemIndex}`} style={styles.featureItem}>
+                                        • {line}
+                                    </Text>
+                                ))}
+                            </View>
+                        );
+                    })}
                     <PlanActions
                         currentEnrollment={enrollment}
                         onCheckout={goCheckout}

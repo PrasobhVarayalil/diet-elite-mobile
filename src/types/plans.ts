@@ -36,11 +36,27 @@ export type PlanSummary = {
         rank_name?: string;
         slug?: string;
         sort_order?: number;
-        highlights?: string[];
-        feature_groups?: Array<{ title: string; items: string[] }>;
+        highlights?: PlanRankHighlight[];
+        feature_groups?: PlanRankFeatureGroup[];
     } | null;
     upgrade_quote?: PlanUpgradeQuote | null;
     actions?: PlanCustomerActions | null;
+};
+
+export type PlanRankHighlight = {
+    key?: string;
+    label?: string;
+    value?: string;
+    group?: string;
+    group_label?: string;
+    compare_display?: string;
+};
+
+export type PlanRankFeatureGroup = {
+    id?: string;
+    label?: string;
+    title?: string;
+    items?: Array<PlanRankHighlight | string>;
 };
 
 export type PendingEnrollment = {
