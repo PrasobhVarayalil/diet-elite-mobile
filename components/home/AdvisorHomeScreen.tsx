@@ -5,13 +5,14 @@ import { Card, SectionTitle } from '@/components/ui/Card';
 import { FeatureGrid, FeatureTile } from '@/components/ui/FeatureTile';
 import { MenuRow } from '@/components/ui/MenuRow';
 import { StatCard } from '@/components/ui/StatCard';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { appHref } from '@/src/lib/navigation';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type AdvisorDashboard = {
     stats?: {
@@ -69,11 +70,7 @@ export function AdvisorHomeScreen() {
     }, [load]);
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator color={colors.brandDark} size="large" />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading your dashboard…" />;
     }
 
     const stats = data?.stats ?? {};

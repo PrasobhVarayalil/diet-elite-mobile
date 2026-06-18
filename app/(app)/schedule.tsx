@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
@@ -8,7 +9,7 @@ import { APP_ROUTES } from '@/src/lib/navigation';
 import { isDietitian } from '@/src/lib/user-access';
 import { Redirect, Stack } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type Shift = {
     id: string;
@@ -73,7 +74,7 @@ export default function DietitianScheduleScreen() {
                 title={data?.dietitian?.name ? `${data.dietitian.name}'s availability` : 'My availability'}
             />
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Loading schedule…" />
             ) : (
                 <ScrollView contentContainerStyle={styles.content}>
                     <Text style={styles.note}>

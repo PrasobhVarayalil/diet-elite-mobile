@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { BookingActions } from '@/components/bookings/BookingActions';
 import { Button } from '@/components/ui/Button';
@@ -14,7 +15,6 @@ import type { BookingListItem, BookingsIndexResponse } from '@/src/types/booking
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     FlatList,
     Pressable,
@@ -210,9 +210,7 @@ export default function BookingsScreen() {
         return (
             <View style={styles.wrap}>
                 <AppHeader subtitle={subtitle} title={title} />
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={colors.brandDark} />
-                </View>
+                <BrandLoadingScreen message="Loading bookings…" />
             </View>
         );
     }

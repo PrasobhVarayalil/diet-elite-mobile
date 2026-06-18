@@ -2,11 +2,12 @@ import {
     adminListStyles,
     useAdminListContentStyle,
 } from '@/components/admin/admin-list-styles';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { colors } from '@/constants/theme';
 import { Stack } from 'expo-router';
 import type { ReactElement, ReactNode } from 'react';
-import { ActivityIndicator, FlatList, type ListRenderItem, StyleSheet, View } from 'react-native';
+import { FlatList, type ListRenderItem, StyleSheet, View } from 'react-native';
 
 function AdminListSeparator() {
     return <View style={adminListStyles.separator} />;
@@ -43,7 +44,7 @@ export function AdminListScreen<T>({
             <AppHeader subtitle={subtitle} title={title} />
             {actions ? <View style={adminListStyles.actions}>{actions}</View> : null}
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={adminListStyles.loading} />
+                <BrandLoadingScreen message="Loading…" />
             ) : (
                 <FlatList
                     ItemSeparatorComponent={AdminListSeparator}

@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { Badge } from '@/components/ui/Badge';
 import { colors, formatDateTime, formatInrFromPaise, shadow, spacing } from '@/constants/theme';
@@ -7,7 +8,6 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import type { PaymentListItem, PaymentsIndexResponse } from '@/src/types/checkout';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     RefreshControl,
     StyleSheet,
@@ -61,11 +61,7 @@ export default function PaymentsScreen() {
     }, [load]);
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator size="large" color={colors.brandDark} />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading payments…" />;
     }
 
     return (

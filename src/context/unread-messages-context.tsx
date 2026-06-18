@@ -21,12 +21,14 @@ type UnreadMessagesContextValue = {
 
 const UnreadMessagesContext = createContext<UnreadMessagesContextValue | null>(null);
 
+const POLL_MS = 30_000;
+
 export function UnreadMessagesProvider({ children }: { children: ReactNode }) {
     const { user } = useAuth();
     const messageRoutes = useMessageRoutes(user);
     const [unreadTotal, setUnreadTotal] = useState(0);
 
-    const canFetch = Boolean(messageRoutes?.index) && !customerNeedsActivePlan(user);
+    const canFetch = Boolean(user && messageRoutes?.index) && !customerNeedsActivePlan(user);
 
     const refreshUnread = useCallback(async () => {
         if (!canFetch || !messageRoutes?.index) {
@@ -37,23 +39,34 @@ export function UnreadMessagesProvider({ children }: { children: ReactNode }) {
         const result = await apiGet<{ unread_total?: number }>(messageRoutes.index);
         if (result.ok && result.data) {
             setUnreadTotal(result.data.unread_total ?? 0);
+        } else {
+            setUnreadTotal(0);
         }
     }, [canFetch, messageRoutes?.index]);
 
     useEffect(() => {
         void refreshUnread();
-    }, [refreshUnread]);
+        if (!canFetch) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            void refreshUnread();
+        }, POLL_MS);
+
+        return () => clearInterval(interval);
+    }, [refreshUnread, canFetch]);
 
     useEffect(() => {
         function onAppState(next: AppStateStatus) {
-            if (next === 'active') {
+            if (next === 'active' && canFetch) {
                 void refreshUnread();
             }
         }
 
         const sub = AppState.addEventListener('change', onAppState);
         return () => sub.remove();
-    }, [refreshUnread]);
+    }, [refreshUnread, canFetch]);
 
     const value = useMemo(
         () => ({ unreadTotal, refreshUnread, setUnreadTotal }),

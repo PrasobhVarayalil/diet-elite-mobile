@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
@@ -10,7 +11,7 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import { APP_ROUTES } from '@/src/lib/navigation';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type ReviewItem = {
     dietitian: {
@@ -72,7 +73,7 @@ export default function ReviewsScreen() {
         <View style={styles.root}>
             <AppHeader subtitle="Rate your dietitians" title="Reviews" />
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Loading reviews…" />
             ) : (
                 <ScrollView contentContainerStyle={styles.content}>
                     {error ? <Text style={styles.error}>{error}</Text> : null}

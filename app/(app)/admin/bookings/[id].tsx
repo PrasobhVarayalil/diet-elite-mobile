@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { BookingActions } from '@/components/bookings/BookingActions';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
@@ -8,7 +9,7 @@ import type { BookingListItem } from '@/src/types/bookings';
 import { appHref } from '@/src/lib/navigation';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function AdminBookingShowScreen() {
     const router = useRouter();
@@ -55,11 +56,7 @@ export default function AdminBookingShowScreen() {
     }
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator color={colors.brandDark} />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading booking…" />;
     }
 
     return (

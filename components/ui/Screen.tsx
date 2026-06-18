@@ -1,27 +1,32 @@
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
-import { ActivityIndicator, StyleSheet, Text, View, type ViewProps } from 'react-native';
+import { StyleSheet, Text, View, type ViewProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ScreenProps = ViewProps & {
     title?: string;
     subtitle?: string;
     loading?: boolean;
+    loadingMessage?: string;
     padded?: boolean;
 };
 
-export function Screen({ title, subtitle, loading, padded = true, children, style, ...rest }: ScreenProps) {
+export function Screen({
+    title,
+    subtitle,
+    loading,
+    loadingMessage,
+    padded = true,
+    children,
+    style,
+    ...rest
+}: ScreenProps) {
     return (
         <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
             <View style={[styles.container, padded && styles.padded, style]} {...rest}>
                 {title ? <Text style={styles.title}>{title}</Text> : null}
                 {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
-                {loading ? (
-                    <View style={styles.loadingWrap}>
-                        <ActivityIndicator size="large" color={colors.brandDark} />
-                    </View>
-                ) : (
-                    children
-                )}
+                {loading ? <BrandLoadingScreen message={loadingMessage} /> : children}
             </View>
         </SafeAreaView>
     );
@@ -49,10 +54,5 @@ const styles = StyleSheet.create({
         color: colors.textMuted,
         marginBottom: spacing.lg,
         lineHeight: 22,
-    },
-    loadingWrap: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 });

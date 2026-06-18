@@ -4,9 +4,9 @@ import { SegmentChart } from '@/components/charts/SegmentChart';
 import { useAdminDashboard } from '@/components/home/use-admin-dashboard';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { StatCard } from '@/components/ui/StatCard';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import {
-    ActivityIndicator,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -27,11 +27,7 @@ export function AdminPortalDashboard() {
     const { data, error, loading, refreshing, reload } = useAdminDashboard();
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator color={colors.brandDark} size="large" />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading analytics…" />;
     }
 
     const stats = data?.stats ?? {};

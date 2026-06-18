@@ -1,3 +1,4 @@
+import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import {
@@ -22,34 +23,46 @@ const UnreadNotificationsContext = createContext<UnreadNotificationsContextValue
 const POLL_MS = 60_000;
 
 export function UnreadNotificationsProvider({ children }: { children: ReactNode }) {
+    const { user } = useAuth();
     const [unreadCount, setUnreadCount] = useState(0);
 
     const refreshUnread = useCallback(async () => {
+        if (!user) {
+            setUnreadCount(0);
+            return;
+        }
+
         const result = await apiGet<{ unread_count?: number }>(apiRoutes.notifications.index);
         if (result.ok && result.data) {
-            setUnreadCount(result.data.unread_count ?? 0);
+            setUnreadCount(Math.max(0, result.data.unread_count ?? 0));
+        } else {
+            setUnreadCount(0);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         void refreshUnread();
+        if (!user) {
+            return;
+        }
+
         const interval = setInterval(() => {
             void refreshUnread();
         }, POLL_MS);
 
         return () => clearInterval(interval);
-    }, [refreshUnread]);
+    }, [refreshUnread, user]);
 
     useEffect(() => {
         function onAppState(next: AppStateStatus) {
-            if (next === 'active') {
+            if (next === 'active' && user) {
                 void refreshUnread();
             }
         }
 
         const sub = AppState.addEventListener('change', onAppState);
         return () => sub.remove();
-    }, [refreshUnread]);
+    }, [refreshUnread, user]);
 
     const value = useMemo(
         () => ({ unreadCount, refreshUnread, setUnreadCount }),

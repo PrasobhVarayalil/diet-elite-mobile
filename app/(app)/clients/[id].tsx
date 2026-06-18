@@ -1,5 +1,6 @@
 import { DietitianGate } from '@/components/auth/DietitianGate';
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { ChartCard } from '@/components/charts/ChartCard';
 import { MiniBarChart } from '@/components/charts/MiniBarChart';
@@ -15,7 +16,7 @@ import { APP_ROUTES } from '@/src/lib/navigation';
 import type { BookingListItem } from '@/src/types/bookings';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type ClientContext = {
     user: {
@@ -111,7 +112,7 @@ function ClientShowContent() {
     }
 
     if (loading) {
-        return <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />;
+        return <BrandLoadingScreen message="Loading client…" />;
     }
 
     const clientUser = data?.client?.user;

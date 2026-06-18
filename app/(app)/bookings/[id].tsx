@@ -11,7 +11,7 @@ import { isAdmin, isCustomer, isDietitian } from '@/src/lib/user-access';
 import type { BookingListItem } from '@/src/types/bookings';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet, Text } from 'react-native';
 
 export default function BookingDetailScreen() {
     const router = useRouter();

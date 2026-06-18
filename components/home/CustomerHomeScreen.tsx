@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { ChartCard } from '@/components/charts/ChartCard';
 import { MiniBarChart } from '@/components/charts/MiniBarChart';
@@ -17,7 +18,6 @@ import { customerCanUseMessenger, customerHasActivePlan } from '@/src/lib/role-n
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -100,9 +100,7 @@ export default function CustomerHomeScreen() {
                 title={`${greeting()}, ${firstName}`}
             />
             {loading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator color={colors.brandDark} size="large" />
-                </View>
+                <BrandLoadingScreen message="Loading your dashboard…" />
             ) : (
                 <ScrollView
                     contentContainerStyle={styles.content}

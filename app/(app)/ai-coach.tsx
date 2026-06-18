@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { Button } from '@/components/ui/Button';
 import { Card, SectionTitle } from '@/components/ui/Card';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet, apiPost } from '@/src/lib/api-client';
@@ -9,7 +10,7 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import { PLANS_LIST_HREF } from '@/src/lib/navigation';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type CoachIndex = {
     health_summary?: {
@@ -61,7 +62,7 @@ export default function AiCoachScreen() {
         <View style={styles.root}>
             <AppHeader subtitle="Personalized nutrition tips" title="AI coach" />
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Loading AI coach…" />
             ) : (
                 <ScrollView contentContainerStyle={styles.content}>
                     <Card tone="accent">

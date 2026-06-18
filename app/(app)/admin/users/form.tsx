@@ -1,5 +1,6 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { FormSelect } from '@/components/ui/FormSelect';
 import { FormSwitch } from '@/components/ui/FormSwitch';
 import { TextField } from '@/components/ui/TextField';
@@ -9,7 +10,7 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import { applyValidationErrors, firstFieldError } from '@/src/lib/form-errors';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type RoleOption = { value: string; label: string };
 
@@ -158,7 +159,7 @@ export default function AdminUserFormScreen() {
     }
 
     if (loading) {
-        return <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />;
+        return <BrandLoadingScreen message="Loading…" />;
     }
 
     return (

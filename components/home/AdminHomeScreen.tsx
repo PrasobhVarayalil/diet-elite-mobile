@@ -2,13 +2,13 @@ import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { MenuRow } from '@/components/ui/MenuRow';
 import { StatCard } from '@/components/ui/StatCard';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { useAdminDashboard } from '@/components/home/use-admin-dashboard';
 import { appHref } from '@/src/lib/navigation';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import {
-    ActivityIndicator,
     Pressable,
     RefreshControl,
     ScrollView,
@@ -23,11 +23,7 @@ export function AdminHomeScreen() {
     const { data, error, loading, refreshing, reload } = useAdminDashboard();
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator color={colors.brandDark} size="large" />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading admin dashboard…" />;
     }
 
     const stats = data?.stats ?? {};

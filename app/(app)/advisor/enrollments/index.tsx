@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
@@ -6,7 +7,7 @@ import { appHref } from '@/src/lib/navigation';
 import { useScreenInsets } from '@/src/lib/layout';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type EnrollmentRow = {
     id: string;
@@ -38,7 +39,7 @@ export default function AdvisorEnrollmentsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader subtitle="Customers you enrolled" title="Enrollments" />
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Loading enrollments…" />
             ) : (
                 <FlatList
                     contentContainerStyle={[styles.list, { paddingBottom: fabBottom + 56 }]}

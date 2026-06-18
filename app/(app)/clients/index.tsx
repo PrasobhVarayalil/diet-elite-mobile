@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { Badge } from '@/components/ui/Badge';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
@@ -8,7 +9,7 @@ import { appHref } from '@/src/lib/navigation';
 import { isDietitian } from '@/src/lib/user-access';
 import { Redirect, Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type ClientRow = {
     id: string;
@@ -50,7 +51,7 @@ export default function ClientsScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader subtitle="Customers with appointments" title="My clients" />
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Loading clients…" />
             ) : (
                 <FlatList
                     contentContainerStyle={styles.list}

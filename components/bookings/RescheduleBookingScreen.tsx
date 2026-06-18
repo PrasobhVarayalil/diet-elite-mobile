@@ -1,6 +1,7 @@
 import { BookingSlotPicker } from '@/components/bookings/BookingSlotPicker';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { apiGet, apiPost } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
@@ -14,7 +15,7 @@ import {
 import type { BookingCalendarResponse, BookingListItem, CalendarSlot } from '@/src/types/bookings';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export type RescheduleMode = 'dietitian' | 'admin';
 
@@ -122,11 +123,7 @@ export function RescheduleBookingScreen({ mode }: Props) {
     }
 
     if (loading && !booking) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator color={colors.brandDark} size="large" />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading booking…" />;
     }
 
     const pickerName = dietitianDisplayName(dietitianId, dietitians, booking?.dietitian?.name ?? 'Dietitian');

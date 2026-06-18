@@ -1,10 +1,11 @@
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { isAdmin } from '@/src/lib/user-access';
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
     children: ReactNode;
@@ -22,11 +23,7 @@ export function AdminGate({ children }: Props) {
     }, [bootstrapping, user, router]);
 
     if (bootstrapping) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator color={colors.brandDark} size="large" />
-            </View>
-        );
+        return <BrandLoadingScreen />;
     }
 
     if (!isAdmin(user)) {

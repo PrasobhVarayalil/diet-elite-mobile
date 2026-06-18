@@ -18,6 +18,7 @@ type AppScreenProps = {
     headerRight?: ReactNode;
     showLogo?: boolean;
     loading?: boolean;
+    loadingMessage?: string;
     /** Wrap body in KeyboardAvoidingView (forms, chat). */
     keyboard?: boolean;
     /** Scroll main content (forms, detail pages). */
@@ -35,6 +36,7 @@ export function AppScreen({
     headerRight,
     showLogo = true,
     loading = false,
+    loadingMessage,
     keyboard = false,
     scroll = false,
     footer,
@@ -45,7 +47,7 @@ export function AppScreen({
     const { footerPadding, keyboardOffset } = useScreenInsets();
 
     const body = loading ? (
-        <BrandLoadingScreen />
+        <BrandLoadingScreen message={loadingMessage} />
     ) : scroll ? (
         <ScrollView
             contentContainerStyle={[styles.scrollContent, contentContainerStyle]}

@@ -1,5 +1,6 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { FormSwitch } from '@/components/ui/FormSwitch';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
@@ -8,7 +9,7 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import { applyValidationErrors, firstFieldError } from '@/src/lib/form-errors';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type RankForm = {
     id?: string;
@@ -122,7 +123,7 @@ export default function AdminPlanRankFormScreen() {
     }
 
     if (loading) {
-        return <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />;
+        return <BrandLoadingScreen message="Loading…" />;
     }
 
     return (

@@ -1,5 +1,6 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Badge } from '@/components/ui/Badge';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { Button } from '@/components/ui/Button';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
@@ -9,7 +10,6 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import { mobileNotificationRoute, type AppNotification } from '@/src/lib/notification-routes';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     Pressable,
     RefreshControl,
@@ -99,7 +99,7 @@ export default function NotificationsScreen() {
                 <Button label="Clear all" loading={acting} onPress={() => void clearAll()} variant="secondary" />
             </View>
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Loading notifications…" />
             ) : (
                 <FlatList
                     contentContainerStyle={styles.list}

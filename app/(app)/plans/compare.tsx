@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { CustomerGate } from '@/components/auth/CustomerGate';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
@@ -6,7 +7,7 @@ import { apiRoutes } from '@/src/lib/api-routes';
 import type { PlanSummary } from '@/src/types/plans';
 import { Stack } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type FeatureGroup = {
     rank_name: string;
@@ -62,7 +63,7 @@ function PlansCompareContent() {
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader subtitle="Side-by-side membership tiers" title="Compare plans" />
             {loading ? (
-                <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
+                <BrandLoadingScreen message="Comparing plans…" />
             ) : error ? (
                 <Text style={styles.error}>{error}</Text>
             ) : (

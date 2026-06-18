@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet, apiPost } from '@/src/lib/api-client';
@@ -10,7 +11,6 @@ import type { CheckoutIntent, CheckoutShowResponse, CheckoutStoreResponse } from
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     Alert,
     Pressable,
     ScrollView,
@@ -120,9 +120,7 @@ export default function CheckoutScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader subtitle={checkout?.plan.name ?? 'Secure checkout'} title="Checkout" />
             {loading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={colors.brandDark} />
-                </View>
+                <BrandLoadingScreen message="Loading checkout…" />
             ) : error && !checkout ? (
                 <View style={styles.center}>
                     <Text style={styles.error}>{error}</Text>

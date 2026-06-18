@@ -1,14 +1,21 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { FormSwitch } from '@/components/ui/FormSwitch';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
 import { apiDelete, apiGet, apiPost, apiPut } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { DAY_LABELS, WEEKDAY_NUMBERS } from '@/src/lib/schedule-days';
+import {
+    bulkDaysToAdd,
+    findScheduleConflict,
+    scheduleConflictMessage,
+    type ScheduleShift,
+} from '@/src/lib/schedule-conflicts';
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 type Shift = {
     id: string;
@@ -35,6 +42,41 @@ export default function AdminScheduleShowScreen() {
     const [editEnd, setEditEnd] = useState('17:00');
     const [editSlotMinutes, setEditSlotMinutes] = useState('30');
     const [editActive, setEditActive] = useState(true);
+    const [formError, setFormError] = useState<string | null>(null);
+
+    const existingShifts = useMemo(() => shifts as ScheduleShift[], [shifts]);
+
+    const addConflict = useMemo(() => {
+        const conflict = findScheduleConflict(existingShifts, Number(day) || 1, startTime, endTime);
+        if (!conflict) {
+            return null;
+        }
+        const dayLabel = DAY_LABELS[Number(day)] ?? 'This day';
+        return scheduleConflictMessage(conflict, dayLabel, startTime, endTime);
+    }, [existingShifts, day, startTime, endTime]);
+
+    const bulkPreview = useMemo(
+        () => bulkDaysToAdd(existingShifts, [...WEEKDAY_NUMBERS], startTime, endTime),
+        [existingShifts, startTime, endTime],
+    );
+
+    const editConflict = useMemo(() => {
+        if (!editingShift) {
+            return null;
+        }
+        const conflict = findScheduleConflict(
+            existingShifts,
+            editingShift.day_of_week,
+            editStart,
+            editEnd,
+            editingShift.id,
+        );
+        if (!conflict) {
+            return null;
+        }
+        const dayLabel = DAY_LABELS[editingShift.day_of_week] ?? 'This day';
+        return scheduleConflictMessage(conflict, dayLabel, editStart, editEnd);
+    }, [existingShifts, editingShift, editStart, editEnd]);
 
     const load = useCallback(async () => {
         if (!id) {
@@ -67,6 +109,10 @@ export default function AdminScheduleShowScreen() {
         if (!id || !editingShift) {
             return;
         }
+        if (editConflict) {
+            Alert.alert('Shift conflict', editConflict);
+            return;
+        }
         setSaving(true);
         const result = await apiPut(apiRoutes.admin.schedules.update(id, editingShift.id), {
             day_of_week: editingShift.day_of_week,
@@ -88,6 +134,12 @@ export default function AdminScheduleShowScreen() {
         if (!id) {
             return;
         }
+        if (addConflict) {
+            setFormError(addConflict);
+            Alert.alert('Shift conflict', addConflict);
+            return;
+        }
+        setFormError(null);
         setSaving(true);
         const result = await apiPost(apiRoutes.admin.schedules.store(id), {
             day_of_week: Number(day) || 1,
@@ -100,6 +152,7 @@ export default function AdminScheduleShowScreen() {
         if (result.ok) {
             load();
         } else {
+            setFormError(result.message);
             Alert.alert('Error', result.message);
         }
     }
@@ -108,18 +161,28 @@ export default function AdminScheduleShowScreen() {
         if (!id) {
             return;
         }
+        const { add, skip } = bulkPreview;
+        if (add.length === 0) {
+            const message = 'All weekdays already have a conflicting shift for these hours.';
+            setFormError(message);
+            Alert.alert('Nothing to add', message);
+            return;
+        }
+        setFormError(null);
         setSaving(true);
         const result = await apiPost(apiRoutes.admin.schedules.bulk(id), {
-            days: [...WEEKDAY_NUMBERS],
+            days: add,
             start_time: startTime,
             end_time: endTime,
             slot_duration_minutes: Number(slotMinutes) || 30,
         });
         setSaving(false);
         if (result.ok) {
-            Alert.alert('Added', result.message ?? 'Weekday shifts added.');
+            const suffix = skip.length > 0 ? ` (${skip.length} day(s) skipped.)` : '';
+            Alert.alert('Added', `${result.message ?? 'Weekday shifts added.'}${suffix}`);
             load();
         } else {
+            setFormError(result.message);
             Alert.alert('Error', result.message);
         }
     }
@@ -172,7 +235,7 @@ export default function AdminScheduleShowScreen() {
     }
 
     if (loading) {
-        return <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />;
+        return <BrandLoadingScreen message="Loading schedule…" />;
     }
 
     return (
@@ -204,7 +267,13 @@ export default function AdminScheduleShowScreen() {
                                         onValueChange={setEditActive}
                                         value={editActive}
                                     />
-                                    <Button label="Save changes" loading={saving} onPress={() => void saveEdit()} />
+                                    {editConflict ? <Text style={styles.formError}>{editConflict}</Text> : null}
+                                    <Button
+                                        disabled={Boolean(editConflict)}
+                                        label="Save changes"
+                                        loading={saving}
+                                        onPress={() => void saveEdit()}
+                                    />
                                     <Button
                                         label="Cancel edit"
                                         onPress={() => setEditingShift(null)}
@@ -257,8 +326,22 @@ export default function AdminScheduleShowScreen() {
                     onChangeText={setSlotMinutes}
                     value={slotMinutes}
                 />
-                <Button label="Add shift" loading={saving} onPress={addShift} />
-                <Button label="Add Mon–Fri (same hours)" loading={saving} onPress={addWeekdays} variant="secondary" />
+                {formError ? <Text style={styles.formError}>{formError}</Text> : null}
+                {addConflict ? <Text style={styles.formError}>{addConflict}</Text> : null}
+                <Button disabled={Boolean(addConflict)} label="Add shift" loading={saving} onPress={addShift} />
+                {bulkPreview.skip.length > 0 ? (
+                    <Text style={styles.hint}>
+                        Mon–Fri will add {bulkPreview.add.length} day(s); skips{' '}
+                        {bulkPreview.skip.map((d) => DAY_LABELS[Number(d)]?.slice(0, 3) ?? d).join(', ')}.
+                    </Text>
+                ) : null}
+                <Button
+                    disabled={bulkPreview.add.length === 0}
+                    label="Add Mon–Fri (same hours)"
+                    loading={saving}
+                    onPress={addWeekdays}
+                    variant="secondary"
+                />
             </ScrollView>
         </View>
     );
@@ -293,4 +376,5 @@ const styles = StyleSheet.create({
     dayChipSelected: { backgroundColor: colors.brandDark, borderColor: colors.brandDark },
     dayChipText: { fontSize: 12, fontWeight: '700', color: colors.text },
     dayChipTextSelected: { color: '#fff' },
+    formError: { fontSize: 13, color: colors.error },
 });

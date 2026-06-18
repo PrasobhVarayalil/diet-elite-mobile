@@ -4,6 +4,7 @@ import type { MessageContact } from '@/components/messages/ContactPicker';
 import { InboxSummaryStrip } from '@/components/messages/InboxSummaryStrip';
 import { ThreadListItem, type ThreadListData } from '@/components/messages/ThreadListItem';
 import { Button } from '@/components/ui/Button';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { useUnreadMessages } from '@/src/context/unread-messages-context';
@@ -16,7 +17,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     Pressable,
     StyleSheet,
@@ -167,9 +167,7 @@ export default function MessagesScreen() {
             ) : null}
 
             {loading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator color={colors.brandDark} size="large" />
-                </View>
+                <BrandLoadingScreen message="Loading messages…" />
             ) : error && threads.length === 0 && contacts.length === 0 ? (
                 <View style={styles.errorOnly}>
                     <Text style={styles.error}>{error}</Text>
