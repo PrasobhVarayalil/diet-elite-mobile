@@ -152,6 +152,7 @@ export const apiRoutes = {
             index: '/api/v1/admin/schedules',
             show: (dietitianId: string) => `/api/v1/admin/schedules/${dietitianId}`,
             store: (dietitianId: string) => `/api/v1/admin/dietitians/${dietitianId}/schedules`,
+            bulk: (dietitianId: string) => `/api/v1/admin/dietitians/${dietitianId}/schedules/bulk`,
             update: (dietitianId: string, scheduleId: string) =>
                 `/api/v1/admin/dietitians/${dietitianId}/schedules/${scheduleId}`,
             destroy: (dietitianId: string, scheduleId: string) =>

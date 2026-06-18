@@ -109,6 +109,12 @@ export function AdminHomeScreen() {
                     onPress={() => router.push(appHref('/(app)/admin/users'))}
                 />
                 <MenuRow
+                    icon="time-outline"
+                    label="Dietitian slots"
+                    onPress={() => router.push(appHref('/(app)/admin/schedules'))}
+                    subtitle="Add shifts for booking availability"
+                />
+                <MenuRow
                     icon="speedometer-outline"
                     label="Analytics dashboard"
                     onPress={() => router.push(appHref('/(app)/admin/dashboard'))}

@@ -16,8 +16,8 @@ export const ADMIN_MENU: AdminMenuItem[] = [
     { icon: 'grid-outline', label: 'Categories', href: appHref('/(app)/admin/categories') },
     { icon: 'layers-outline', label: 'Plan ranks', href: appHref('/(app)/admin/plan-ranks') },
     { icon: 'calendar-outline', label: 'Bookings', href: appHref('/(app)/admin/bookings') },
-    { icon: 'people-outline', label: 'Users', href: appHref('/(app)/admin/users') },
+    { icon: 'people-outline', label: 'Users', href: appHref('/(app)/admin/users'), subtitle: 'Active / inactive accounts' },
     { icon: 'card-outline', label: 'Payments', href: appHref('/(app)/admin/payments') },
-    { icon: 'time-outline', label: 'Schedules', href: appHref('/(app)/admin/schedules') },
+    { icon: 'time-outline', label: 'Dietitian slots', href: appHref('/(app)/admin/schedules'), subtitle: 'Add shifts & bookable slots' },
     { icon: 'document-text-outline', label: 'Audit log', href: appHref('/(app)/admin/audit-log') },
 ];

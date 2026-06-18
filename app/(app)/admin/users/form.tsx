@@ -1,5 +1,6 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { FormSwitch } from '@/components/ui/FormSwitch';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
 import { apiGet, apiPost, apiPut } from '@/src/lib/api-client';
@@ -97,6 +98,12 @@ export default function AdminUserFormScreen() {
                 {roles.length > 0 ? (
                     <Text style={styles.hint}>Roles: {roles.map((r) => r.value).join(', ')}</Text>
                 ) : null}
+                <FormSwitch
+                    hint="Inactive users cannot sign in"
+                    label="Account active"
+                    onValueChange={setIsActive}
+                    value={isActive}
+                />
                 <TextField label={isEdit ? 'New password (optional)' : 'Password'} onChangeText={setPassword} secureTextEntry value={password} />
                 <TextField label="Confirm password" onChangeText={setPasswordConfirmation} secureTextEntry value={passwordConfirmation} />
                 {error ? <Text style={styles.error}>{error}</Text> : null}

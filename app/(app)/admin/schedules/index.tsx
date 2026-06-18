@@ -7,7 +7,13 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, Text } from 'react-native';
 
-type DietitianRow = { id: string; name: string; title?: string; schedule_count?: number };
+type DietitianRow = {
+    id: string;
+    name: string;
+    title?: string;
+    shift_count?: number;
+    days_covered?: number;
+};
 
 export default function AdminSchedulesScreen() {
     const router = useRouter();
@@ -30,19 +36,28 @@ export default function AdminSchedulesScreen() {
             data={items}
             keyExtractor={(item) => item.id}
             loading={loading}
-            subtitle="Dietitian shifts"
-            title="Schedules"
-            renderItem={({ item }) => (
-                <Pressable
-                    onPress={() => router.push(appHref(`/(app)/admin/schedules/${item.id}`))}
-                    style={adminListStyles.card}
-                >
-                    <Text style={adminListStyles.title}>{item.name}</Text>
-                    <Text style={adminListStyles.meta}>
-                        {item.title ?? 'Dietitian'} · {item.schedule_count ?? 0} shifts
-                    </Text>
-                </Pressable>
-            )}
+            subtitle="Pick a dietitian to add weekly shifts and bookable slots"
+            title="Dietitian slots"
+            renderItem={({ item }) => {
+                const shiftCount = item.shift_count ?? 0;
+                const daysCovered = item.days_covered ?? 0;
+                const meta =
+                    shiftCount > 0
+                        ? `${shiftCount} shift${shiftCount === 1 ? '' : 's'} across ${daysCovered} day${daysCovered === 1 ? '' : 's'}`
+                        : 'No shifts yet — tap to add slots';
+
+                return (
+                    <Pressable
+                        onPress={() => router.push(appHref(`/(app)/admin/schedules/${item.id}`))}
+                        style={adminListStyles.card}
+                    >
+                        <Text style={adminListStyles.title}>{item.name}</Text>
+                        <Text style={adminListStyles.meta}>
+                            {item.title ?? 'Dietitian'} · {meta}
+                        </Text>
+                    </Pressable>
+                );
+            }}
         />
     );
 }

@@ -1,13 +1,25 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Button } from '@/components/ui/Button';
+import { FormSwitch } from '@/components/ui/FormSwitch';
 import { TextField } from '@/components/ui/TextField';
 import { colors, spacing } from '@/constants/theme';
-import { apiGet, apiPost } from '@/src/lib/api-client';
+import { apiGet, apiPost, apiPut } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { appHref } from '@/src/lib/navigation';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+
+type UserRecord = {
+    id?: string;
+    name?: string;
+    email?: string;
+    username?: string;
+    phone?: string | null;
+    role?: string;
+    role_label?: string;
+    is_active?: boolean;
+};
 
 export default function AdminUserShowScreen() {
     const router = useRouter();
@@ -17,6 +29,7 @@ export default function AdminUserShowScreen() {
     const [downgradePlanId, setDowngradePlanId] = useState('');
     const [downgradeReason, setDowngradeReason] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [togglingStatus, setTogglingStatus] = useState(false);
 
     const load = useCallback(async () => {
         if (!id) {
@@ -33,6 +46,37 @@ export default function AdminUserShowScreen() {
     useEffect(() => {
         load();
     }, [load]);
+
+    async function toggleActive(nextActive: boolean) {
+        if (!id) {
+            return;
+        }
+        const user = ((profile?.user as UserRecord | undefined) ?? profile) as UserRecord;
+        if (!user?.name || !user?.email || !user?.role) {
+            Alert.alert('Unable to update', 'User details are incomplete. Open edit form instead.');
+            return;
+        }
+
+        setTogglingStatus(true);
+        const payload: Record<string, unknown> = {
+            name: String(user.name),
+            email: String(user.email),
+            role: String(user.role),
+            phone: user.phone ?? null,
+            is_active: nextActive,
+        };
+        if (user.role === 'customer' && user.username) {
+            payload.username = user.username;
+        }
+
+        const result = await apiPut(apiRoutes.admin.users.update(id), payload);
+        setTogglingStatus(false);
+        if (result.ok) {
+            load();
+        } else {
+            Alert.alert('Error', result.message);
+        }
+    }
 
     async function downgrade() {
         if (!id || !downgradePlanId.trim()) {
@@ -56,8 +100,9 @@ export default function AdminUserShowScreen() {
         return <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />;
     }
 
-    const user = (profile?.user as Record<string, unknown> | undefined) ?? profile;
+    const user = ((profile?.user as UserRecord | undefined) ?? profile) as UserRecord;
     const enrollment = profile?.activeEnrollment as Record<string, unknown> | undefined;
+    const isActive = user?.is_active !== false;
 
     return (
         <View style={styles.root}>
@@ -66,8 +111,13 @@ export default function AdminUserShowScreen() {
             <ScrollView contentContainerStyle={styles.content}>
                 <Text style={styles.label}>Role</Text>
                 <Text style={styles.value}>{String(user?.role_label ?? user?.role ?? '—')}</Text>
-                <Text style={styles.label}>Status</Text>
-                <Text style={styles.value}>{user?.is_active === false ? 'Inactive' : 'Active'}</Text>
+                <FormSwitch
+                    disabled={togglingStatus}
+                    hint="Inactive users cannot sign in to the app"
+                    label="Account active"
+                    onValueChange={toggleActive}
+                    value={isActive}
+                />
                 {enrollment ? (
                     <>
                         <Text style={styles.label}>Active plan</Text>

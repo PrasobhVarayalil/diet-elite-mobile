@@ -232,6 +232,14 @@ export function profileMenuFor(user: AuthUser | null | undefined): ProfileMenuIt
                 icon: 'people-outline',
                 label: 'Users',
                 route: '/(app)/admin/users',
+                subtitle: 'Active / inactive accounts',
+                section: 'program',
+            },
+            {
+                icon: 'time-outline',
+                label: 'Dietitian slots',
+                route: '/(app)/admin/schedules',
+                subtitle: 'Add shifts & bookable slots',
                 section: 'program',
             },
             {
