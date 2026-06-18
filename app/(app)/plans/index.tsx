@@ -1,7 +1,9 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { Badge } from '@/components/ui/Badge';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { Button } from '@/components/ui/Button';
 import { PlanActions } from '@/components/plans/PlanActions';
+import { PlanHighlights, PlanRankBadge } from '@/components/plans/PlanRankBadge';
 import { colors, chartPalette, formatInrFromPaise, shadow, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
@@ -14,7 +16,6 @@ import type { PlanSummary, PlansIndexResponse } from '@/src/types/plans';
 import { Redirect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     Pressable,
     RefreshControl,
@@ -49,17 +50,21 @@ function PlanCard({
                 {isCurrent ? <Badge label="Current plan" tone="success" /> : null}
                 {plan.is_featured && !isCurrent ? <Badge label="Featured" tone="warning" /> : null}
                 <Pressable onPress={() => onViewDetails(plan.id)}>
-                    <Text style={styles.name}>{plan.name}</Text>
+                    <View style={styles.titleRow}>
+                        <Text style={styles.name}>{plan.name}</Text>
+                        <PlanRankBadge rank={plan.plan_rank} />
+                    </View>
                     {plan.tagline ? <Text style={styles.tagline}>{plan.tagline}</Text> : null}
+                    {plan.category?.name ? (
+                        <Text style={styles.category}>{plan.category.name}</Text>
+                    ) : null}
                     <View style={styles.metaRow}>
                         <Text style={styles.price}>{formatInrFromPaise(price)}</Text>
                         {plan.duration_weeks ? (
                             <Text style={styles.duration}>{plan.duration_weeks} weeks</Text>
                         ) : null}
                     </View>
-                    {plan.plan_rank?.rank_name ? (
-                        <Text style={styles.rank}>{plan.plan_rank.rank_name}</Text>
-                    ) : null}
+                    <PlanHighlights highlights={plan.plan_rank?.highlights} />
                 </Pressable>
                 <PlanActions
                     compact
@@ -128,11 +133,7 @@ export default function PlansScreen() {
     }
 
     if (loading) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator size="large" color={colors.brandDark} />
-            </View>
-        );
+        return <BrandLoadingScreen message="Loading plans…" />;
     }
 
     return (
@@ -215,8 +216,10 @@ const styles = StyleSheet.create({
     cardCurrent: { borderColor: colors.chart2, borderWidth: 2 },
     accentBar: { width: 5 },
     cardBody: { flex: 1, padding: spacing.lg, gap: spacing.sm },
+    titleRow: { gap: spacing.xs },
     name: { fontSize: 18, fontWeight: '700', color: colors.text },
     tagline: { fontSize: 14, color: colors.textMuted, lineHeight: 20 },
+    category: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
     metaRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -225,7 +228,6 @@ const styles = StyleSheet.create({
     },
     price: { fontSize: 20, fontWeight: '700', color: colors.brandDark },
     duration: { fontSize: 14, color: colors.textMuted },
-    rank: { fontSize: 13, color: colors.textMuted },
     empty: { padding: spacing.lg, gap: spacing.sm },
     emptyTitle: { fontSize: 18, fontWeight: '600', color: colors.text },
     emptyBody: { fontSize: 14, color: colors.textMuted, lineHeight: 20 },

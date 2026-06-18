@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Keyboard, Platform, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-/** Standard keyboard behavior — Android relies on softwareKeyboardLayoutMode: resize. */
+/** Standard keyboard behavior — iOS uses padding; Android relies on resize + keyboard inset padding. */
 export function keyboardAvoidingBehavior(): 'padding' | undefined {
     return Platform.OS === 'ios' ? 'padding' : undefined;
 }
@@ -61,8 +61,11 @@ export function useScreenInsets() {
         keyboardInset,
         /** Footer / composer padding above home indicator. */
         footerPadding: Math.max(insets.bottom, spacing.sm),
-        /** Composer padding when keyboard is open (Android resize fallback). */
-        composerPaddingBottom: keyboardInset > 0 ? spacing.sm : Math.max(insets.bottom, spacing.sm),
+        /** Composer padding above home indicator or keyboard. */
+        composerPaddingBottom:
+            Platform.OS === 'android' && keyboardInset > 0
+                ? keyboardInset
+                : Math.max(insets.bottom, spacing.sm),
         /** FAB or sticky footer offset from screen bottom. */
         fabBottom: insets.bottom + spacing.lg,
         keyboardOffset: headerKeyboardOffset(insets.top),

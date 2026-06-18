@@ -5,6 +5,7 @@ import {
     shouldShowAvatar,
     shouldShowTime,
 } from '@/components/messages/MessageBubble';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { useUnreadMessages } from '@/src/context/unread-messages-context';
@@ -14,7 +15,6 @@ import { keyboardAvoidingBehavior, useScreenInsets } from '@/src/lib/layout';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
     FlatList,
     KeyboardAvoidingView,
     Platform,
@@ -133,9 +133,7 @@ export default function MessageThreadScreen() {
                 style={styles.flex}
             >
                 {loading ? (
-                    <View style={styles.center}>
-                        <ActivityIndicator color={colors.brandDark} />
-                    </View>
+                    <BrandLoadingScreen message="Loading messages…" />
                 ) : error ? (
                     <Text style={styles.error}>{error}</Text>
                 ) : (

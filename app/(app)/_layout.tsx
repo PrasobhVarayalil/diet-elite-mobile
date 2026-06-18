@@ -1,3 +1,4 @@
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { useUnreadMessages } from '@/src/context/unread-messages-context';
@@ -5,7 +6,6 @@ import { tabLabel, visibleTabs, type MobileTabId } from '@/src/lib/role-nav';
 import { formatUnreadLabel } from '@/components/messages/UnreadBadge';
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, Tabs } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 function tabIcon(name: keyof typeof Ionicons.glyphMap, focused: boolean) {
@@ -26,11 +26,7 @@ export default function AppLayout() {
     const { unreadTotal } = useUnreadMessages();
 
     if (bootstrapping) {
-        return (
-            <View style={styles.center}>
-                <ActivityIndicator size="large" color={colors.brandDark} />
-            </View>
-        );
+        return <BrandLoadingScreen message="Starting Diet Elite…" />;
     }
 
     if (!user) {
@@ -63,6 +59,7 @@ export default function AppLayout() {
         <Tabs
             screenOptions={{
                 headerShown: false,
+                tabBarHideOnKeyboard: true,
                 tabBarActiveTintColor: colors.brandDark,
                 tabBarInactiveTintColor: colors.textMuted,
                 tabBarStyle: {
@@ -94,12 +91,3 @@ export default function AppLayout() {
         </Tabs>
     );
 }
-
-const styles = StyleSheet.create({
-    center: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors.background,
-    },
-});

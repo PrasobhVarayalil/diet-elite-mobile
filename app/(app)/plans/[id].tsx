@@ -1,6 +1,8 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { CustomerProgramGate } from '@/components/auth/CustomerProgramGate';
 import { PlanActions } from '@/components/plans/PlanActions';
+import { PlanHighlights, PlanRankBadge } from '@/components/plans/PlanRankBadge';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
@@ -12,7 +14,7 @@ import type { CheckoutIntent } from '@/src/types/checkout';
 import type { PlanShowResponse, PlanSummary } from '@/src/types/plans';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const RESERVED_PLAN_IDS = new Set(['index', 'compare', 'create']);
 
@@ -107,9 +109,7 @@ export default function PlanDetailScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader subtitle={plan?.tagline ?? 'Plan details'} title={plan?.name ?? 'Plan'} />
             {loading ? (
-                <View style={styles.center}>
-                    <ActivityIndicator size="large" color={colors.brandDark} />
-                </View>
+                <BrandLoadingScreen message="Loading plan…" />
             ) : error ? (
                 <View style={styles.center}>
                     <Text style={styles.error}>{error}</Text>
@@ -121,6 +121,7 @@ export default function PlanDetailScreen() {
                             <Text style={styles.currentBadgeText}>Your current plan</Text>
                         </View>
                     ) : null}
+                    <PlanRankBadge large rank={plan.plan_rank} />
                     <Text style={styles.price}>{formatInrFromPaise(price)}</Text>
                     {plan.duration_weeks ? (
                         <Text style={styles.meta}>{plan.duration_weeks} weeks program</Text>
@@ -128,10 +129,18 @@ export default function PlanDetailScreen() {
                     {plan.category?.name ? (
                         <Text style={styles.meta}>Category: {plan.category.name}</Text>
                     ) : null}
-                    {plan.plan_rank?.rank_name ? (
-                        <Text style={styles.meta}>Rank: {plan.plan_rank.rank_name}</Text>
-                    ) : null}
                     {plan.description ? <Text style={styles.description}>{plan.description}</Text> : null}
+                    <PlanHighlights highlights={plan.plan_rank?.highlights} />
+                    {plan.plan_rank?.feature_groups?.map((group) => (
+                        <View key={group.title} style={styles.featureGroup}>
+                            <Text style={styles.featureTitle}>{group.title}</Text>
+                            {group.items.map((item) => (
+                                <Text key={item} style={styles.featureItem}>
+                                    • {item}
+                                </Text>
+                            ))}
+                        </View>
+                    ))}
                     <PlanActions
                         currentEnrollment={enrollment}
                         onCheckout={goCheckout}
@@ -168,6 +177,9 @@ const styles = StyleSheet.create({
     price: { fontSize: 32, fontWeight: '700', color: colors.brandDark },
     meta: { fontSize: 14, color: colors.textMuted },
     description: { fontSize: 15, lineHeight: 24, color: colors.text, marginVertical: spacing.sm },
+    featureGroup: { gap: 6, marginTop: spacing.sm },
+    featureTitle: { fontSize: 14, fontWeight: '700', color: colors.text },
+    featureItem: { fontSize: 14, lineHeight: 20, color: colors.textMuted },
     error: { color: colors.error, fontSize: 15, textAlign: 'center' },
 });
 

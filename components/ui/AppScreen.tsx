@@ -1,9 +1,9 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { BrandLoadingScreen } from '@/components/ui/BrandLoadingScreen';
 import { colors, spacing } from '@/constants/theme';
 import { keyboardAvoidingBehavior, useScreenInsets } from '@/src/lib/layout';
 import type { ReactNode } from 'react';
 import {
-    ActivityIndicator,
     KeyboardAvoidingView,
     ScrollView,
     StyleSheet,
@@ -45,9 +45,7 @@ export function AppScreen({
     const { footerPadding, keyboardOffset } = useScreenInsets();
 
     const body = loading ? (
-        <View style={styles.loading}>
-            <ActivityIndicator color={colors.brandDark} size="large" />
-        </View>
+        <BrandLoadingScreen />
     ) : scroll ? (
         <ScrollView
             contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
@@ -107,11 +105,6 @@ const styles = StyleSheet.create({
         padding: spacing.lg,
         paddingBottom: spacing.xl,
         gap: spacing.md,
-    },
-    loading: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     footer: {
         borderTopWidth: 1,

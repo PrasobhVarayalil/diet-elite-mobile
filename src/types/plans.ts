@@ -32,7 +32,12 @@ export type PlanSummary = {
         slug: string;
     } | null;
     plan_rank?: {
+        name?: string;
         rank_name?: string;
+        slug?: string;
+        sort_order?: number;
+        highlights?: string[];
+        feature_groups?: Array<{ title: string; items: string[] }>;
     } | null;
     upgrade_quote?: PlanUpgradeQuote | null;
     actions?: PlanCustomerActions | null;
