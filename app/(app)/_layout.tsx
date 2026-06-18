@@ -88,6 +88,7 @@ export default function AppLayout() {
             <Tabs.Screen name="meal-plan" options={{ href: null }} />
             <Tabs.Screen name="ai-coach" options={{ href: null }} />
             <Tabs.Screen name="notifications" options={{ href: null }} />
+            <Tabs.Screen name="schedule" options={{ href: null }} />
             <Tabs.Screen name="reviews" options={{ href: null }} />
             <Tabs.Screen name="profile-edit" options={{ href: null }} />
         </Tabs>

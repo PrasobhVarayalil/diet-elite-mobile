@@ -1,9 +1,12 @@
 import { AppHeader } from '@/components/ui/AppHeader';
 import { colors, spacing } from '@/constants/theme';
+import { useAuth } from '@/src/context/auth-context';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { DAY_LABELS } from '@/src/lib/schedule-days';
-import { Stack } from 'expo-router';
+import { APP_ROUTES } from '@/src/lib/navigation';
+import { isDietitian } from '@/src/lib/user-access';
+import { Redirect, Stack } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -22,6 +25,7 @@ type ScheduleResponse = {
 };
 
 export default function DietitianScheduleScreen() {
+    const { user } = useAuth();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<ScheduleResponse | null>(null);
 
@@ -57,19 +61,23 @@ export default function DietitianScheduleScreen() {
         }));
     }, [data]);
 
+    if (!isDietitian(user)) {
+        return <Redirect href={APP_ROUTES.home} />;
+    }
+
     return (
         <View style={styles.root}>
             <Stack.Screen options={{ headerShown: false }} />
             <AppHeader
-                subtitle={data?.dietitian?.title ?? 'Your weekly availability'}
-                title={data?.dietitian?.name ? `${data.dietitian.name}'s schedule` : 'My schedule'}
+                subtitle={data?.dietitian?.title ?? 'Your weekly bookable hours'}
+                title={data?.dietitian?.name ? `${data.dietitian.name}'s availability` : 'My availability'}
             />
             {loading ? (
                 <ActivityIndicator color={colors.brandDark} style={{ marginTop: 40 }} />
             ) : (
                 <ScrollView contentContainerStyle={styles.content}>
                     <Text style={styles.note}>
-                        Read-only view. Ask an admin to update your bookable slots in Admin → Dietitian slots.
+                        Read-only view of your bookable hours. Admins manage shifts under Admin → Dietitian slots.
                     </Text>
                     {displayShifts.length === 0 ? (
                         <Text style={styles.meta}>No shifts configured yet.</Text>

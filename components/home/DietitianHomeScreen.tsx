@@ -100,7 +100,7 @@ export function DietitianHomeScreen() {
             </View>
 
             {data?.weeklyAppointments && data.weeklyAppointments.length > 0 ? (
-                <ChartCard colorIndex={3} subtitle="Last 7 days" title="Weekly schedule">
+                <ChartCard colorIndex={3} subtitle="Sessions per day" title="Weekly appointments">
                     <MiniBarChart
                         colorIndex={3}
                         data={data.weeklyAppointments.map((row) => ({
@@ -165,7 +165,7 @@ export function DietitianHomeScreen() {
                     <FeatureTile
                         colorIndex={2}
                         icon="time-outline"
-                        label="My schedule"
+                        label="My availability"
                         onPress={() => router.push(appHref('/(app)/schedule'))}
                     />
                     <FeatureTile
@@ -191,12 +191,6 @@ export function DietitianHomeScreen() {
                         icon="chatbubbles-outline"
                         label="Messages"
                         onPress={() => router.push(APP_ROUTES.messages)}
-                    />
-                    <FeatureTile
-                        colorIndex={1}
-                        icon="notifications-outline"
-                        label="Alerts"
-                        onPress={() => router.push(APP_ROUTES.notifications)}
                     />
                 </FeatureGrid>
             </Card>

@@ -1,10 +1,9 @@
 import { ContactPicker, type MessageContact } from '@/components/messages/ContactPicker';
 import { Button } from '@/components/ui/Button';
 import { colors, radius, spacing } from '@/constants/theme';
+import { keyboardAvoidingBehavior, useScreenInsets } from '@/src/lib/layout';
 import { Ionicons } from '@expo/vector-icons';
-import { KeyboardAvoidingView, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { keyboardAvoidingBehavior } from '@/src/lib/layout';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 type Props = {
     contacts: MessageContact[];
@@ -29,12 +28,15 @@ export function ComposeMessagePanel({
     sending,
     recipientLabel = 'Recipient',
 }: Props) {
-    const insets = useSafeAreaInsets();
+    const { composerPaddingBottom, chatKeyboardOffset } = useScreenInsets();
     const canSend = Boolean(selectedContact?.id && draft.trim());
 
     return (
-        <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} keyboardVerticalOffset={0}>
-            <View style={[styles.panel, { paddingBottom: insets.bottom + spacing.sm }]}>
+        <KeyboardAvoidingView
+            behavior={keyboardAvoidingBehavior()}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? chatKeyboardOffset : 0}
+        >
+            <View style={[styles.panel, { paddingBottom: composerPaddingBottom }]}>
                 <View style={styles.head}>
                     <View>
                         <Text style={styles.title}>New message</Text>

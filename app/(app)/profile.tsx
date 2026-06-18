@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { useUnreadMessages } from '@/src/context/unread-messages-context';
+import { useUnreadNotifications } from '@/src/context/unread-notifications-context';
 import { apiBaseUrl } from '@/src/lib/config';
 import { profileMenuFor, staffPortalMessage } from '@/src/lib/role-nav';
 import { isCustomer } from '@/src/lib/user-access';
@@ -15,6 +16,7 @@ export default function ProfileScreen() {
     const router = useRouter();
     const { user, logout } = useAuth();
     const { unreadTotal } = useUnreadMessages();
+    const { unreadCount: unreadNotifications } = useUnreadNotifications();
     const menu = profileMenuFor(user);
     const programItems = menu.filter((item) => item.section === 'program');
     const accountItems = menu.filter((item) => item.section === 'account');
@@ -70,6 +72,11 @@ export default function ProfileScreen() {
                 {accountItems.map((item) => (
                     <MenuRow
                         key={item.route}
+                        badge={
+                            item.route.includes('/notifications') && unreadNotifications > 0
+                                ? unreadNotifications
+                                : undefined
+                        }
                         icon={item.icon}
                         label={item.label}
                         onPress={() => router.push(item.route as never)}

@@ -139,7 +139,7 @@ export function profileMenuFor(user: AuthUser | null | undefined): ProfileMenuIt
         return [
             {
                 icon: 'time-outline',
-                label: 'My schedule',
+                label: 'My availability',
                 route: '/(app)/schedule',
                 section: 'program',
             },

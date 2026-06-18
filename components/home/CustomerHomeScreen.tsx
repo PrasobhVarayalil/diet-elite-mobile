@@ -119,8 +119,8 @@ export default function CustomerHomeScreen() {
                         />
                         <StatCard
                             colorIndex={2}
-                            hint={data?.upcomingBooking ? formatDateTime(data.upcomingBooking.scheduled_at) : 'No session'}
-                            label="Next booking"
+                            hint={data?.upcomingBooking ? formatDateTime(data.upcomingBooking.scheduled_at) : 'Book a session'}
+                            label="Next consultation"
                             value={data?.upcomingBooking?.dietitian?.name ?? '—'}
                         />
                         <StatCard
@@ -202,10 +202,25 @@ export default function CustomerHomeScreen() {
 
                     {data?.upcomingBooking ? (
                         <Card>
-                            <SectionTitle>Upcoming consultation</SectionTitle>
-                            <Text style={styles.value}>{data.upcomingBooking.dietitian?.name}</Text>
+                            <SectionTitle>Your next consultation</SectionTitle>
+                            <Text style={styles.value}>{data.upcomingBooking.dietitian?.name ?? 'Dietitian'}</Text>
                             <Text style={styles.body}>{formatDateTime(data.upcomingBooking.scheduled_at)}</Text>
                             <BookingStatusBadge customerView status={data.upcomingBooking.status} />
+                            <MenuRow
+                                icon="calendar-outline"
+                                label="View all bookings"
+                                onPress={() => router.push(APP_ROUTES.bookings)}
+                            />
+                        </Card>
+                    ) : hasActivePlan ? (
+                        <Card>
+                            <SectionTitle>Consultations</SectionTitle>
+                            <Text style={styles.body}>No upcoming session booked yet.</Text>
+                            <MenuRow
+                                icon="calendar-outline"
+                                label="Book consultation"
+                                onPress={() => router.push(APP_ROUTES.bookingCreate)}
+                            />
                         </Card>
                     ) : null}
 
@@ -261,12 +276,6 @@ export default function CustomerHomeScreen() {
                                     />
                                 </>
                             ) : null}
-                            <FeatureTile
-                                colorIndex={2}
-                                icon="notifications-outline"
-                                label="Alerts"
-                                onPress={() => router.push(APP_ROUTES.notifications)}
-                            />
                         </FeatureGrid>
                     </Card>
 

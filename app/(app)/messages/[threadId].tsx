@@ -17,6 +17,7 @@ import {
     ActivityIndicator,
     FlatList,
     KeyboardAvoidingView,
+    Platform,
     StyleSheet,
     Text,
     View,
@@ -43,7 +44,7 @@ export default function MessageThreadScreen() {
     const messageRoutes = useMessageRoutes(user);
     const { refreshUnread } = useUnreadMessages();
     const { threadId } = useLocalSearchParams<{ threadId: string }>();
-    const { footerPadding } = useScreenInsets();
+    const { composerPaddingBottom, chatKeyboardOffset } = useScreenInsets();
     const [loading, setLoading] = useState(true);
     const [messages, setMessages] = useState<Message[]>([]);
     const [counterpartName, setCounterpartName] = useState('Chat');
@@ -126,7 +127,11 @@ export default function MessageThreadScreen() {
                 subtitle={counterpartTitle ?? 'End-to-end secure chat'}
                 onBack={() => router.back()}
             />
-            <KeyboardAvoidingView behavior={keyboardAvoidingBehavior()} style={styles.flex}>
+            <KeyboardAvoidingView
+                behavior={keyboardAvoidingBehavior()}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? chatKeyboardOffset : 0}
+                style={styles.flex}
+            >
                 {loading ? (
                     <View style={styles.center}>
                         <ActivityIndicator color={colors.brandDark} />
@@ -156,7 +161,7 @@ export default function MessageThreadScreen() {
                         style={styles.flex}
                     />
                 )}
-                <View style={[styles.composerWrap, { paddingBottom: footerPadding }]}>
+                <View style={[styles.composerWrap, { paddingBottom: composerPaddingBottom }]}>
                     <ChatComposer
                         onChangeText={setDraft}
                         onSend={send}

@@ -1,4 +1,5 @@
 import { UnreadBadge } from '@/components/messages/UnreadBadge';
+import { NotificationBellButton } from '@/components/notifications/NotificationBellButton';
 import { colors, spacing } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -42,6 +43,7 @@ export function ChatsListHeader({ title = 'Chats', unreadTotal = 0, onCompose }:
                         </Pressable>
                     ) : null}
                     <UnreadBadge count={unreadTotal} />
+                    <NotificationBellButton accessibilityLabel="Open notifications" />
                 </View>
             </View>
         </LinearGradient>

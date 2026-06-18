@@ -86,12 +86,7 @@ export function AppScreen({
     return (
         <View style={styles.root}>
             {title ? (
-                <AppHeader
-                    right={headerRight}
-                    showLogo={showLogo}
-                    subtitle={subtitle}
-                    title={title}
-                />
+                <AppHeader right={headerRight} showLogo={showLogo} subtitle={subtitle} title={title} />
             ) : null}
             {wrappedBody}
         </View>

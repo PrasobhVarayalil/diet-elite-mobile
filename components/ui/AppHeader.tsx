@@ -1,4 +1,5 @@
 import { BrandLogo } from '@/components/ui/BrandLogo';
+import { HeaderActions } from '@/components/ui/HeaderActions';
 import { colors, radius, spacing, typography } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ReactNode } from 'react';
@@ -9,11 +10,19 @@ type AppHeaderProps = {
     title: string;
     subtitle?: string;
     right?: ReactNode;
+    /** Show notification bell in the top-right (default true). */
+    showNotificationBell?: boolean;
     /** Show Diet Elite logo (Noom / HealthifyMe-style branded header). */
     showLogo?: boolean;
 };
 
-export function AppHeader({ title, subtitle, right, showLogo = true }: AppHeaderProps) {
+export function AppHeader({
+    title,
+    subtitle,
+    right,
+    showNotificationBell = true,
+    showLogo = true,
+}: AppHeaderProps) {
     const insets = useSafeAreaInsets();
 
     return (
@@ -42,7 +51,9 @@ export function AppHeader({ title, subtitle, right, showLogo = true }: AppHeader
                             </Text>
                         ) : null}
                     </View>
-                    {right ? <View style={styles.right}>{right}</View> : null}
+                    {right || showNotificationBell ? (
+                        <HeaderActions extra={right} showNotificationBell={showNotificationBell} />
+                    ) : null}
                 </View>
             </View>
         </LinearGradient>
@@ -72,7 +83,6 @@ const styles = StyleSheet.create({
     },
     titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
     textBlock: { gap: 4, flex: 1, minWidth: 0 },
-    right: { flexShrink: 0 },
     title: { ...typography.hero, fontSize: 26, color: colors.white },
     subtitle: { ...typography.subtitle, color: 'rgba(255,255,255,0.88)' },
 });
