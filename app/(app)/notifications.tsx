@@ -55,8 +55,10 @@ export default function NotificationsScreen() {
 
     async function openNotification(item: AppNotification) {
         if (!item.read_at) {
-            setUnreadCount(Math.max(0, unreadCount - 1));
-            await apiPost(apiRoutes.notifications.read(item.id), {});
+            const result = await apiPost(apiRoutes.notifications.read(item.id), {});
+            if (result.ok) {
+                await refreshUnread();
+            }
         }
 
         const route = mobileNotificationRoute(item, user);

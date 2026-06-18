@@ -14,6 +14,7 @@ export default function RootLayout() {
                     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
                         <Stack.Screen name="index" />
                         <Stack.Screen name="login" />
+                        <Stack.Screen name="register" />
                         <Stack.Screen name="(app)" />
                     </Stack>
                 </UnreadNotificationsProvider>

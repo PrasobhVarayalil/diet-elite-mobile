@@ -101,6 +101,10 @@ export function mobileNotificationRoute(
     }
 
     if (notification.type.startsWith('booking_') || notification.type === 'first_consult_booked') {
+        const bookingId = bookingIdFromData(data);
+        if (bookingId) {
+            return appHref(`/(app)/bookings/${bookingId}`);
+        }
         return APP_ROUTES.bookings;
     }
 

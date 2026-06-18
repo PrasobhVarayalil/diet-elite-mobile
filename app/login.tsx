@@ -4,17 +4,17 @@ import { TextField } from '@/components/ui/TextField';
 import { colors, spacing, typography } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiBaseUrl } from '@/src/lib/config';
-import { mobileEntryHref } from '@/src/lib/navigation';
+import { mobileEntryHref, appHref } from '@/src/lib/navigation';
 import { Redirect, router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { keyboardAvoidingBehavior } from '@/src/lib/layout';
 
 export default function LoginScreen() {
     const insets = useSafeAreaInsets();
-    const { user, signingIn, login } = useAuth();
+    const { user, signingIn, login, registrationEnabled, configLoaded } = useAuth();
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
@@ -79,12 +79,22 @@ export default function LoginScreen() {
                     />
                     {error ? <Text style={styles.error}>{error}</Text> : null}
                     <Button label="Sign in" loading={signingIn} onPress={onSubmit} />
+                    {configLoaded && registrationEnabled ? (
+                        <Text style={styles.switch}>
+                            New here?{' '}
+                            <Text onPress={() => router.push(appHref('/register'))} style={styles.link}>
+                                Create an account
+                            </Text>
+                        </Text>
+                    ) : null}
                     </View>
 
+                    {__DEV__ ? (
                     <Text style={styles.footer}>
                         Demo: customer@dietelite.com / password{'\n'}
                         API: {apiBaseUrl()}
                     </Text>
+                    ) : null}
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>
@@ -128,5 +138,7 @@ const styles = StyleSheet.create({
     cardTitle: { fontSize: 22, fontWeight: '800', color: colors.text },
     cardHint: { fontSize: 14, color: colors.textMuted, marginBottom: 4, lineHeight: 20 },
     error: { color: colors.error, fontSize: 14 },
+    switch: { textAlign: 'center', color: colors.textMuted, fontSize: 14, marginTop: 4 },
+    link: { color: colors.brandDark, fontWeight: '600' },
     footer: { color: colors.textMuted, fontSize: 13, lineHeight: 20, textAlign: 'center' },
 });

@@ -1,4 +1,5 @@
 import { AppHeader } from '@/components/ui/AppHeader';
+import { CustomerGate } from '@/components/auth/CustomerGate';
 import { colors, formatInrFromPaise, spacing } from '@/constants/theme';
 import { apiGet } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
@@ -18,6 +19,14 @@ type CompareResponse = {
 };
 
 export default function PlansCompareScreen() {
+    return (
+        <CustomerGate>
+            <PlansCompareContent />
+        </CustomerGate>
+    );
+}
+
+function PlansCompareContent() {
     const [loading, setLoading] = useState(true);
     const [plans, setPlans] = useState<PlanSummary[]>([]);
     const [catalog, setCatalog] = useState<FeatureGroup[]>([]);

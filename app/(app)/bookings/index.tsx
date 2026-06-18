@@ -9,7 +9,7 @@ import { apiGet, apiPost } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import { appHref } from '@/src/lib/navigation';
 import { customerHasActivePlan } from '@/src/lib/role-nav';
-import { isAdvisor, isCustomer, isDietitian } from '@/src/lib/user-access';
+import { isAdvisor, isCustomer, isDietitian, isAdmin } from '@/src/lib/user-access';
 import type { BookingListItem, BookingsIndexResponse } from '@/src/types/bookings';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -190,8 +190,12 @@ export default function BookingsScreen() {
     }
 
     function openBooking(item: BookingListItem) {
-        if (dietitianView) {
+        if (dietitianView || isCustomer(user)) {
             router.push(appHref(`/(app)/bookings/${item.id}`));
+            return;
+        }
+        if (isAdmin(user)) {
+            router.push(appHref(`/(app)/admin/bookings/${item.id}`));
         }
     }
 

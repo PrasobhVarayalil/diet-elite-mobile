@@ -1,7 +1,9 @@
 /** REST API paths — mirrors diet-elite-api/resources/js/lib/api-routes.ts */
 export const apiRoutes = {
+    config: '/api/v1/config',
     auth: {
         login: '/api/v1/auth/login',
+        register: '/api/v1/auth/register',
         logout: '/api/v1/auth/logout',
         me: '/api/v1/auth/me',
     },
@@ -30,6 +32,7 @@ export const apiRoutes = {
     bookings: {
         index: '/api/v1/bookings',
         store: '/api/v1/bookings',
+        show: (bookingId: string) => `/api/v1/bookings/${bookingId}`,
         calendar: '/api/v1/bookings/calendar',
         cancel: (bookingId: string) => `/api/v1/bookings/${bookingId}/cancel`,
     },
@@ -66,6 +69,8 @@ export const apiRoutes = {
         appointmentReject: (id: string) => `/api/v1/dietitian/appointments/${id}/reject`,
         appointmentCancel: (id: string) => `/api/v1/dietitian/appointments/${id}/cancel`,
         appointmentComplete: (id: string) => `/api/v1/dietitian/appointments/${id}/complete`,
+        appointmentRescheduleForm: (id: string) => `/api/v1/dietitian/appointments/${id}/reschedule`,
+        appointmentReschedule: (id: string) => `/api/v1/dietitian/appointments/${id}/reschedule`,
         clients: '/api/v1/dietitian/clients',
         clientShow: (userId: string) => `/api/v1/dietitian/clients/${userId}`,
         customersSearch: '/api/v1/dietitian/customers/search',
@@ -129,6 +134,8 @@ export const apiRoutes = {
             reject: (id: string) => `/api/v1/admin/bookings/${id}/reject`,
             cancel: (id: string) => `/api/v1/admin/bookings/${id}/cancel`,
             complete: (id: string) => `/api/v1/admin/bookings/${id}/complete`,
+            rescheduleForm: (id: string) => `/api/v1/admin/bookings/${id}/reschedule`,
+            reschedule: (id: string) => `/api/v1/admin/bookings/${id}/reschedule`,
         },
         users: {
             index: '/api/v1/admin/users',

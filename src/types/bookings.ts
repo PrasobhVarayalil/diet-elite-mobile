@@ -15,6 +15,7 @@ export type BookingListItem = {
     can_reject?: boolean;
     can_dismiss?: boolean;
     can_complete?: boolean;
+    can_reschedule?: boolean;
     is_expired_request?: boolean;
 };
 

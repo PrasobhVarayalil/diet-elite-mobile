@@ -1,3 +1,4 @@
+import { DietitianGate } from '@/components/auth/DietitianGate';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { ChartCard } from '@/components/charts/ChartCard';
@@ -40,6 +41,14 @@ type ClientDetail = {
 };
 
 export default function ClientShowScreen() {
+    return (
+        <DietitianGate>
+            <ClientShowContent />
+        </DietitianGate>
+    );
+}
+
+function ClientShowContent() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const { user } = useAuth();

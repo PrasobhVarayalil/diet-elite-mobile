@@ -5,11 +5,13 @@ import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { apiGet, apiPost } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
 import type { BookingListItem } from '@/src/types/bookings';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { appHref } from '@/src/lib/navigation';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 export default function AdminBookingShowScreen() {
+    const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [loading, setLoading] = useState(true);
     const [booking, setBooking] = useState<BookingListItem | null>(null);
@@ -76,6 +78,11 @@ export default function AdminBookingShowScreen() {
                     onReject={booking?.can_reject ? () => runAction('reject') : undefined}
                     onDismiss={booking?.can_dismiss ? () => runAction('reject') : undefined}
                     onComplete={booking?.can_complete ? () => runAction('complete') : undefined}
+                    onReschedule={
+                        booking?.can_reschedule
+                            ? () => router.push(appHref(`/(app)/admin/bookings/reschedule/${id}`))
+                            : undefined
+                    }
                     onCancel={booking?.can_cancel ? () => runAction('cancel') : undefined}
                 />
             </ScrollView>

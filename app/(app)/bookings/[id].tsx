@@ -1,23 +1,27 @@
 import { AppScreen } from '@/components/ui/AppScreen';
 import { BookingStatusBadge } from '@/components/bookings/BookingStatusBadge';
 import { BookingActions } from '@/components/bookings/BookingActions';
+import { PromptModal } from '@/components/ui/PromptModal';
 import { colors, formatDateTime, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet, apiPost } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
+import { appHref } from '@/src/lib/navigation';
 import { isAdmin, isCustomer, isDietitian } from '@/src/lib/user-access';
 import type { BookingListItem } from '@/src/types/bookings';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text } from 'react-native';
 
 export default function BookingDetailScreen() {
+    const router = useRouter();
     const { user } = useAuth();
     const { id } = useLocalSearchParams<{ id: string }>();
     const [loading, setLoading] = useState(true);
     const [acting, setActing] = useState(false);
     const [booking, setBooking] = useState<BookingListItem | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [cancelOpen, setCancelOpen] = useState(false);
 
     const load = useCallback(async () => {
         if (!id) {
@@ -29,6 +33,8 @@ export default function BookingDetailScreen() {
             path = apiRoutes.dietitian.appointmentShow(id);
         } else if (isAdmin(user)) {
             path = apiRoutes.admin.bookings.show(id);
+        } else if (isCustomer(user)) {
+            path = apiRoutes.bookings.show(id);
         } else {
             setError('Booking details are not available for your role.');
             setLoading(false);
@@ -88,6 +94,32 @@ export default function BookingDetailScreen() {
         }
     }
 
+    async function cancelAsCustomer(reason: string) {
+        if (!id) {
+            return;
+        }
+        setActing(true);
+        const result = await apiPost(apiRoutes.bookings.cancel(id), { reason: reason || null });
+        setActing(false);
+        setCancelOpen(false);
+        if (result.ok) {
+            Alert.alert('Cancelled', result.message, [{ text: 'OK', onPress: () => router.back() }]);
+        } else {
+            Alert.alert('Error', result.message);
+        }
+    }
+
+    function openReschedule() {
+        if (!id) {
+            return;
+        }
+        if (isAdmin(user)) {
+            router.push(appHref(`/(app)/admin/bookings/reschedule/${id}`));
+        } else if (isDietitian(user)) {
+            router.push(appHref(`/(app)/bookings/reschedule/${id}`));
+        }
+    }
+
     if (loading) {
         return (
             <AppScreen loading showLogo={false} subtitle="Appointment details" title="Booking" />
@@ -101,7 +133,7 @@ export default function BookingDetailScreen() {
                 scroll
                 showLogo={false}
                 subtitle="Appointment details"
-                title={booking?.user?.name ?? 'Booking'}
+                title={booking?.user?.name ?? booking?.dietitian?.name ?? 'Booking'}
             >
                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 {booking ? (
@@ -113,6 +145,9 @@ export default function BookingDetailScreen() {
                                 ? booking.dietitian?.name
                                 : booking.user?.name ?? 'Client'}
                         </Text>
+                        {booking.cancellation_reason ? (
+                            <Text style={styles.meta}>Reason: {booking.cancellation_reason}</Text>
+                        ) : null}
                         <BookingActions
                             booking={booking}
                             loading={acting}
@@ -120,15 +155,31 @@ export default function BookingDetailScreen() {
                             onReject={booking.can_reject ? () => runAction('reject') : undefined}
                             onDismiss={booking.can_dismiss ? () => runAction('reject') : undefined}
                             onComplete={booking.can_complete ? () => runAction('complete') : undefined}
-                            onCancel={
-                                booking.can_cancel && (isDietitian(user) || isAdmin(user))
-                                    ? () => runAction('cancel')
+                            onReschedule={
+                                booking.can_reschedule && (isDietitian(user) || isAdmin(user))
+                                    ? openReschedule
                                     : undefined
+                            }
+                            onCancel={
+                                booking.can_cancel && isCustomer(user)
+                                    ? () => setCancelOpen(true)
+                                    : booking.can_cancel && (isDietitian(user) || isAdmin(user))
+                                      ? () => runAction('cancel')
+                                      : undefined
                             }
                         />
                     </>
                 ) : null}
             </AppScreen>
+            <PromptModal
+                confirmLabel="Cancel booking"
+                message="Optional: tell your dietitian why you need to cancel."
+                onCancel={() => setCancelOpen(false)}
+                onConfirm={cancelAsCustomer}
+                placeholder="Reason (optional)"
+                title="Cancel booking"
+                visible={cancelOpen}
+            />
         </>
     );
 }

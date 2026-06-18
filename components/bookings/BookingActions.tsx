@@ -10,10 +10,20 @@ type Props = {
     onDismiss?: () => void | Promise<void>;
     onComplete?: () => void | Promise<void>;
     onCancel?: () => void | Promise<void>;
+    onReschedule?: () => void | Promise<void>;
     loading?: boolean;
 };
 
-export function BookingActions({ booking, onApprove, onReject, onDismiss, onComplete, onCancel, loading }: Props) {
+export function BookingActions({
+    booking,
+    onApprove,
+    onReject,
+    onDismiss,
+    onComplete,
+    onCancel,
+    onReschedule,
+    loading,
+}: Props) {
     const actions: { label: string; onPress: () => void; variant?: 'primary' | 'secondary' }[] = [];
 
     if (booking.can_approve && onApprove) {
@@ -43,6 +53,13 @@ export function BookingActions({ booking, onApprove, onReject, onDismiss, onComp
     }
     if (booking.can_complete && onComplete) {
         actions.push({ label: 'Complete', onPress: () => void onComplete() });
+    }
+    if (booking.can_reschedule && onReschedule) {
+        actions.push({
+            label: 'Reschedule',
+            variant: 'secondary',
+            onPress: () => void onReschedule(),
+        });
     }
     if (booking.can_cancel && onCancel) {
         actions.push({

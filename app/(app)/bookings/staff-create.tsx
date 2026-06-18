@@ -1,11 +1,14 @@
 import { StaffBookingCreateScreen } from '@/components/bookings/StaffBookingCreateScreen';
+import { DietitianGate } from '@/components/auth/DietitianGate';
 
 export default function DietitianBookingCreateScreen() {
     return (
-        <StaffBookingCreateScreen
-            mode="dietitian"
-            subtitle="Book for one of your clients"
-            title="New appointment"
-        />
+        <DietitianGate>
+            <StaffBookingCreateScreen
+                mode="dietitian"
+                subtitle="Book for one of your clients"
+                title="New appointment"
+            />
+        </DietitianGate>
     );
 }
