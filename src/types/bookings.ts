@@ -29,6 +29,12 @@ export type CalendarSlot = {
     value: string;
     label: string;
     state: 'past' | 'available' | 'booked' | 'pending' | 'current';
+    duration_minutes?: number;
+};
+
+export type SchedulingConflict = {
+    scheduled_at: string;
+    duration_minutes: number;
 };
 
 export type BookingCalendarData = {
@@ -45,6 +51,10 @@ export type BookingCalendarResponse = {
         name: string;
         title?: string | null;
     } | null;
+    dietitians?: DietitianSearchResult[];
+    blockedCalendarDays?: string[];
+    dietitianBlockedCalendarDays?: string[];
+    customerSchedulingConflicts?: SchedulingConflict[];
 };
 
 export type DietitianSearchResult = {

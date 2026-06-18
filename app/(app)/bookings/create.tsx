@@ -7,6 +7,13 @@ import { colors, spacing } from '@/constants/theme';
 import { useAuth } from '@/src/context/auth-context';
 import { apiGet, apiPost } from '@/src/lib/api-client';
 import { apiRoutes } from '@/src/lib/api-routes';
+import {
+    clampMonthToEarliest,
+    collectBookableSlots,
+    currentMonthKey,
+    firstBookableDay,
+    type CollectBookableSlotsOptions,
+} from '@/src/lib/booking-calendar';
 import type {
     BookingCalendarResponse,
     BookingStoreResponse,
@@ -25,23 +32,6 @@ import {
     View,
 } from 'react-native';
 
-function currentMonth(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-}
-
-function collectAvailableSlots(calendar: BookingCalendarResponse['calendar']): CalendarSlot[] {
-    const slots: CalendarSlot[] = [];
-    Object.values(calendar.days ?? {}).forEach((day) => {
-        day.slots.forEach((slot) => {
-            if (slot.state === 'available') {
-                slots.push(slot);
-            }
-        });
-    });
-    return slots.sort((a, b) => a.value.localeCompare(b.value));
-}
-
 export default function BookingCreateScreen() {
     const router = useRouter();
     const { refreshUser } = useAuth();
@@ -50,7 +40,7 @@ export default function BookingCreateScreen() {
     const [dietitians, setDietitians] = useState<DietitianSearchResponse['dietitians']>([]);
     const [selectedDietitianId, setSelectedDietitianId] = useState<string | null>(null);
     const [selectedDietitianName, setSelectedDietitianName] = useState<string | null>(null);
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonthKey);
     const [calendarLoading, setCalendarLoading] = useState(false);
     const [slots, setSlots] = useState<CalendarSlot[]>([]);
     const [selectedDay, setSelectedDay] = useState<string | null>(null);
@@ -87,15 +77,24 @@ export default function BookingCreateScreen() {
         setSelectedSlot(null);
         setSelectedDay(null);
 
-        const path = `${apiRoutes.bookings.calendar}?dietitian_id=${encodeURIComponent(dietitianId)}&month=${month}`;
+        const safeMonth = clampMonthToEarliest(month);
+        if (safeMonth !== month) {
+            setSelectedMonth(safeMonth);
+        }
+
+        const path = `${apiRoutes.bookings.calendar}?dietitian_id=${encodeURIComponent(dietitianId)}&month=${safeMonth}`;
         const result = await apiGet<BookingCalendarResponse>(path);
 
         if (result.ok && result.data) {
-            const available = collectAvailableSlots(result.data.calendar);
+            const slotOptions: CollectBookableSlotsOptions = {
+                blockedCalendarDays: result.data.blockedCalendarDays,
+                dietitianBlockedCalendarDays: result.data.dietitianBlockedCalendarDays,
+                customerSchedulingConflicts: result.data.customerSchedulingConflicts,
+            };
+            const available = collectBookableSlots(result.data.calendar, slotOptions);
             setSlots(available);
             setSelectedDietitianName(result.data.selectedDietitian?.name ?? selectedDietitianName);
-            const firstDay = available[0]?.value.slice(0, 10) ?? null;
-            setSelectedDay(firstDay);
+            setSelectedDay(firstBookableDay(available));
         } else {
             setSlots([]);
             setLoadError(result.ok ? 'Could not load calendar.' : result.message);
@@ -113,7 +112,7 @@ export default function BookingCreateScreen() {
     function clearDietitian() {
         setSelectedDietitianId(null);
         setSelectedDietitianName(null);
-        setSelectedMonth(currentMonth());
+        setSelectedMonth(currentMonthKey());
         setSlots([]);
         setSelectedDay(null);
         setSelectedSlot(null);
@@ -127,7 +126,7 @@ export default function BookingCreateScreen() {
         Keyboard.dismiss();
         setSelectedDietitianId(id);
         setSelectedDietitianName(name);
-        setSelectedMonth(currentMonth());
+        setSelectedMonth(currentMonthKey());
         setDietitians([]);
         setQuery('');
         setSubmitError(null);

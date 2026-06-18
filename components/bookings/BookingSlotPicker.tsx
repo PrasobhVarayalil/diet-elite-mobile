@@ -1,5 +1,9 @@
 import { Button } from '@/components/ui/Button';
 import { colors, spacing } from '@/constants/theme';
+import {
+    canGoToPreviousMonth,
+    shiftMonth,
+} from '@/src/lib/booking-calendar';
 import type { CalendarSlot } from '@/src/types/bookings';
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo } from 'react';
@@ -44,12 +48,6 @@ function formatSlotSummary(iso: string): string {
     });
 }
 
-function shiftMonth(month: string, delta: number): string {
-    const [year, mon] = month.split('-').map(Number);
-    const date = new Date(year, mon - 1 + delta, 1);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-}
-
 type Props = {
     dietitianName: string;
     month: string;
@@ -62,6 +60,8 @@ type Props = {
     onRetry: () => void;
     onSelectDay: (day: string) => void;
     onSelectSlot: (value: string) => void;
+    summaryTitle?: string;
+    emptyHint?: string;
 };
 
 export function BookingSlotPicker({
@@ -76,7 +76,11 @@ export function BookingSlotPicker({
     onRetry,
     onSelectDay,
     onSelectSlot,
+    summaryTitle = 'Your appointment',
+    emptyHint,
 }: Props) {
+    const canGoPrev = canGoToPreviousMonth(month);
+
     const dayGroups = useMemo(() => {
         const grouped = new Map<string, CalendarSlot[]>();
         slots.forEach((slot) => {
@@ -99,11 +103,17 @@ export function BookingSlotPicker({
             <View style={styles.monthRow}>
                 <Pressable
                     accessibilityLabel="Previous month"
+                    accessibilityState={{ disabled: !canGoPrev }}
+                    disabled={!canGoPrev}
                     hitSlop={8}
-                    onPress={() => onMonthChange(shiftMonth(month, -1))}
-                    style={styles.monthBtn}
+                    onPress={() => {
+                        if (canGoPrev) {
+                            onMonthChange(shiftMonth(month, -1));
+                        }
+                    }}
+                    style={[styles.monthBtn, !canGoPrev && styles.monthBtnDisabled]}
                 >
-                    <Ionicons color={colors.brandDark} name="chevron-back" size={22} />
+                    <Ionicons color={canGoPrev ? colors.brandDark : colors.textMuted} name="chevron-back" size={22} />
                 </Pressable>
                 <Text style={styles.monthLabel}>{formatMonthLabel(month)}</Text>
                 <Pressable
@@ -124,16 +134,14 @@ export function BookingSlotPicker({
             ) : loadError ? (
                 <View style={styles.errorBox}>
                     <Text style={styles.errorText}>{loadError}</Text>
-                    <Button
-                        label="Try again"
-                        onPress={onRetry}
-                        variant="secondary"
-                    />
+                    <Button label="Try again" onPress={onRetry} variant="secondary" />
                 </View>
             ) : dayGroups.length === 0 ? (
                 <View style={styles.emptyBox}>
                     <Text style={styles.emptyTitle}>No open slots this month</Text>
-                    <Text style={styles.meta}>Try another month or choose a different dietitian.</Text>
+                    <Text style={styles.meta}>
+                        {emptyHint ?? 'Try another month or choose a different dietitian.'}
+                    </Text>
                     <Button
                         label="Next month"
                         onPress={() => onMonthChange(shiftMonth(month, 1))}
@@ -199,7 +207,7 @@ export function BookingSlotPicker({
 
             {selectedSlot ? (
                 <View style={styles.summary}>
-                    <Text style={styles.summaryLabel}>Your appointment</Text>
+                    <Text style={styles.summaryLabel}>{summaryTitle}</Text>
                     <Text style={styles.summaryValue}>{formatSlotSummary(selectedSlot)}</Text>
                     <Text style={styles.summaryMeta}>with {dietitianName}</Text>
                 </View>
@@ -224,6 +232,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.xs,
     },
     monthBtn: { padding: spacing.sm },
+    monthBtnDisabled: { opacity: 0.35 },
     monthLabel: { fontSize: 16, fontWeight: '700', color: colors.text },
     center: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.lg },
     meta: { fontSize: 14, color: colors.textMuted, textAlign: 'center' },
